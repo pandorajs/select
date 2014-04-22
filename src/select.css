@@ -1,0 +1,92 @@
+.ue-select a,.ue-select-trigger {
+    color: #7d7d7d;
+    font-size: 14px;
+    text-decoration: none
+}
+
+.ue-select a:hover,.ue-select-trigger:hover {
+    text-decoration: none
+}
+
+.ue-select {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    background: #fff;
+    color: #7d7d7d;
+    font-size: 14px
+}
+
+.ue-select-content {
+    margin: -1px 0 0;
+    padding: 0;
+    overflow: auto;
+    height: 100%;
+    list-style: none;
+    border: 1px solid #ccc;
+    _float: left
+}
+
+.ue-select-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0
+}
+
+.ue-select-item {
+    display: block;
+    padding: 10px 15px;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.ue-select-item:hover,.ue-select-item-hover {
+    background: #f2f2f2
+}
+
+.ue-select-item-disabled,.ue-select-item-disabled a {
+    cursor: not-allowed;
+    color: #ccc
+}
+
+.ue-select-item-disabled:hover,.ue-select-item-disabled a:hover {
+    background: #fff
+}
+
+.ue-select-trigger {
+    position: relative;
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    border: 1px solid #ccc;
+    height: 30px;
+    line-height: 30px;
+    text-indent: 15px;
+    background: -webkit-linear-gradient(top,#fbfbfb,#f3f3f3);
+    background: -moz-linear-gradient(top,#fbfbfb,#f3f3f3);
+    filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#fbfbfb, endColorstr=#f3f3f3)
+}
+
+.ue-select-trigger i {
+    position: absolute;
+    top: 0;
+    right: 15px;
+    line-height: 28px;
+    text-indent: 0;
+    font-size: 14px;
+    cursor: pointer
+}
+
+.ue-select-trigger:hover {
+    border: 1px solid #999
+}
+
+.ue-select .ue-select-trigger {
+    display: block
+}
+
+.ue-select-disabled,.ue-select .ue-select-disabled {
+    color: #aaa;
+    cursor: not-allowed
+}

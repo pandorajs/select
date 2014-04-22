@@ -1,0 +1,33 @@
+{
+  "family": "pandora",
+  "name": "select",
+  "version": "1.0.0",
+  "description": "select",
+  "homepage": "https://github.com/pandorajs/select",
+  "author": "lynzz",
+  "maintainers": [
+    "lynzz"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pandorajs/select.git"
+  },
+  "bugs": {
+    "url": ""
+  },
+  "keywords": [],
+  "licenses": "MIT",
+  "spm": {
+    "output": [
+      "select.js",
+      "select.css"
+    ],
+    "alias": {
+      "$": "$",
+      "widget": "pandora/widget/1.0.0/widget",
+      "position": "pandora/position/1.0.0/position"
+      },
+    "devAlias": {},
+    "engines": {}
+  }
+}

@@ -1,0 +1,15 @@
+<ul class="{{classPrefix}}-content" data-role="content">
+  {{#if multiple}}
+    {{#each select}}
+      <li data-role="item" class="{{../classPrefix}}-item">
+        <input type="checkbox" class="{{../classPrefix}}-check" value="{{{value}}}"> {{{text}}} 
+      </li>
+    {{/each}}
+  {{else}}
+    {{#each select}}
+    <li data-role="item"
+      class="{{../classPrefix}}-item"
+      data-value="{{value}}">{{{text}}}</li>
+    {{/each}}
+  {{/if}}
+</ul>

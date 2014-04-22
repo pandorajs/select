@@ -24,7 +24,11 @@ define(function(require, exports, module) {
 			name: '',
 			value: '',
 
-			template: require('./select.handlebars')
+			template: require('./select.handlebars'),
+
+			delegates: {
+				
+			}
 
 		},
 
@@ -32,9 +36,7 @@ define(function(require, exports, module) {
 			var self = this;
 
 			self.initAttrs();
-			self.data($.extend(self.option('model'), {
-				multiple: self.option("multiple"),
-			});
+			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
 			this.render();
 
 			this.after('show', function() {
@@ -50,7 +52,7 @@ define(function(require, exports, module) {
 			if (trigger[0].tagName.toLowerCase() === 'select') {
 				var newTrigger = $(this.option('triggerTpl')).addClass(getClassName(this.option('classPrefix'), 'trigger'));
 				this.__options.trigger = newTrigger;
-				this.__options.model = convertSelect(trigger[0], this.option('classPrefix'))
+				this.__options.model = convertSelect(trigger[0], this.option('classPrefix'));
 
 				trigger.after(newTrigger).hide();
 			} else {
@@ -72,19 +74,23 @@ define(function(require, exports, module) {
 				}
 
 				// trigger 如果为其他 DOM，则由用户提供 model
-				this.__options.model = completeModel(this.option("model"), this.option('classPrefix'))
+				this.__options.model = completeModel(this.option('model'), this.option('classPrefix'));
 			}
 		},
 
 		_setPosition: function() {
 			// 不在文档流中，定位无效
-			if (!isInDocument(this.element[0])) return;
+			if (!isInDocument(this.element[0])) {
+				return;
+			} 
 
 			//align || (align = this.option('align'));
 			var align = this.option('align');
 
 			// 如果align为空，表示不需要使用js对齐
-			if (!align) return;
+			if (!align) {
+				return;
+			}
 
 			var isHidden = this.element.css('display') === 'none';
 
@@ -125,7 +131,9 @@ define(function(require, exports, module) {
 
 	// 获取 className ，如果 classPrefix 不设置，就返回 ''
 	function getClassName(classPrefix, className) {
-		if (!classPrefix) return '';
+		if (!classPrefix) {
+			return '';
+		}
 		return classPrefix + '-' + className;
 	}
 
@@ -145,7 +153,9 @@ define(function(require, exports, module) {
 				var field = fields[j];
 				o[field] = option[field];
 			}
-			if (option.selected) hasDefaultSelect = true;
+			if (option.selected) {
+				hasDefaultSelect = true;
+			}
 			model.push(o);
 		}
 		// 当所有都没有设置 selected，默认设置第一个
@@ -164,7 +174,9 @@ define(function(require, exports, module) {
 			selectIndexArray = [];
 		for (i = 0, l = model.length; i < l; i++) {
 			var o = $.extend({}, model[i]);
-			if (o.selected) selectIndexArray.push(i);
+			if (o.selected) {
+				selectIndexArray.push(i);
+			}
 			o.selected = o.defaultSelected = !! o.selected;
 			o.disabled = !! o.disabled;
 			newModel.push(o);

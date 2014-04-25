@@ -1,35 +1,79 @@
 define(function(require, exports, module) {
 	var $ = require('$');
-	var Widget = require('widget');
-	var Position = require('position');
+	var Overlay = require('overlay');
 
-	var Select = Widget.extend({
+	var Select = Overlay.extend({
 		defaults: {
 			triggerTpl: '<a href="#"></a>',
 			classPrefix: 'ue-select',
 
-			// 定位配置
-			align: {
-				// element 的定位点，默认为左上角
-				selfXY: [0, 0],
-				// 基准定位元素，默认为当前可视区域
-				baseElement: Position.VIEWPORT,
-				// 基准定位元素的定位点，默认为左上角
-				baseXY: [0, '100%-1px']
-			},
-
 			// 可多选，为 checkbox 多选
-			multiple: true,
+			multiple: false,
+			// 分隔符，多选时才有用
+			delimiter: ', ',
+
+			placeholder: '请选择',
+
+			// 位置
+			baseXY: {
+				x: 0,
+				y: 1
+			},
+			selfXY: {
+				x: 0,
+				y: 0
+			},
 
 			name: '',
 			value: '',
 
+			effect: 'none',
+
 			template: require('./select.handlebars'),
 
 			delegates: {
-				
+				'click': function(e) {
+					e.stopPropagation();
+				},	
+				'click [data-role=item]': function(e) {
+					var $target = $(e.currentTarget);
+					if (this.option('multiple')) {
+						var $check = $target.find('[type=checkbox]');
+						$check.trigger('click');
+					} else {
+						console.log(this)
+						this.select($target.data('index'));
+					}
+					
+				},
+				'click [type=checkbox]': function(e) {
+					e.stopPropagation();
+					var $target = $(e.currentTarget);
+					var $activeTrigger = $(this.activeTrigger);
+					var ret = [];
+					var value = [];
+
+					this.element.find(':checked').each(function(item) {
+						ret.push($(this).data('text'));
+						ret.push($(this).val());
+					});
+					ret = ret.length ? ret.join(this.option('delimiter')) : this.option('placeholder');
+					this.$name.val(value.join(','));
+
+					$activeTrigger.text(ret);
+				}
 			}
 
+		},
+
+		show: function() {
+			this.option('visible', true);
+			Select.superclass.show.call(this);
+		},
+
+		hide: function() {
+			this.option('visible', false);
+			Select.superclass.hide.call(this);
 		},
 
 		setup: function() {
@@ -37,22 +81,46 @@ define(function(require, exports, module) {
 
 			self.initAttrs();
 			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
+			// 下拉框置于 trigger 下方
+			this.option('baseElement', this.option('trigger'));
 			this.render();
+			this._initOptions();
+			this._blurHide();
+			
+		},
 
-			this.after('show', function() {
-				self._setPosition();
+		select: function(index) {
+			console.log(index)
+			this.$origSelect.find('option').each(function(i) {
+				var selected = index == i ? 'selected' : '';
+				$(this).attr('selected', selected);
 			});
-			//this._setPosition();
+			this.hide();
+		},
+
+		// 除了 element 和 relativeElements，点击 body 后都会隐藏 element
+		_blurHide: function(arr) {
+			arr = $.makeArray(arr);
+			arr.push(this.element);
+			this._relativeElements = arr;
+			Select.blurOverlays.push(this);
+		},
+
+		_initOptions: function() {
+			this.options = this.role('content').children();
 		},
 
 		initAttrs: function() {
 			var selectName;
-			var trigger = $(this.option('trigger'));
+			var trigger = this.$origSelect = $(this.option('trigger'));
 
 			if (trigger[0].tagName.toLowerCase() === 'select') {
-				var newTrigger = $(this.option('triggerTpl')).addClass(getClassName(this.option('classPrefix'), 'trigger'));
-				this.__options.trigger = newTrigger;
-				this.__options.model = convertSelect(trigger[0], this.option('classPrefix'));
+				var newTrigger = $(this.option('triggerTpl')).addClass(getClassName(this.option('classPrefix'), 'trigger')).text(this.option('placeholder'));
+
+				this.option('trigger', newTrigger);
+				// 重新初始 trigger 事件
+				this.initTrigger();
+				this.option('model', convertSelect(trigger[0], this.option('classPrefix')))
 
 				trigger.after(newTrigger).hide();
 			} else {
@@ -62,9 +130,7 @@ define(function(require, exports, module) {
 					var input = $('input[name="' + selectName + '"]').eq(0);
 					if (!input[0]) {
 						input = $(
-							'<input type="text" id="select-' + selectName.replace(/\./g, '-') +
-							'" name="' + selectName +
-							'" />'
+							'<input type="text" name="' + selectName + '" />'
 						).css({
 							position: 'absolute',
 							left: '-99999px',
@@ -72,62 +138,23 @@ define(function(require, exports, module) {
 						}).insertAfter(trigger);
 					}
 				}
-
+				this.$name = this.$('[name=' + this.option('name') + ']');
 				// trigger 如果为其他 DOM，则由用户提供 model
-				this.__options.model = completeModel(this.option('model'), this.option('classPrefix'));
-			}
-		},
-
-		_setPosition: function() {
-			// 不在文档流中，定位无效
-			if (!isInDocument(this.element[0])) {
-				return;
-			} 
-
-			//align || (align = this.option('align'));
-			var align = this.option('align');
-
-			// 如果align为空，表示不需要使用js对齐
-			if (!align) {
-				return;
+				this.option('model', completeModel(this.option('model'), this.option('classPrefix'))) 
 			}
 
-			var isHidden = this.element.css('display') === 'none';
-
-			// 在定位时，为避免元素高度不定，先显示出来
-			if (isHidden) {
-				this.element.css({
-					visibility: 'hidden',
-					display: 'block'
-				});
-			}
-
-			// 调整 align 属性的默认值, 在 trigger 下方
-			align.baseElement = this.option('trigger');
-
-			Position.pin({
-				element: this.element,
-				x: align.selfXY[0],
-				y: align.selfXY[1]
-			}, {
-				element: align.baseElement,
-				x: align.baseXY[0],
-				y: align.baseXY[1]
-			});
-
-			// 定位完成后，还原
-			if (isHidden) {
-				this.element.css({
-					visibility: '',
-					display: 'none'
-				});
-			}
-
-			return this;
 		}
+
+		
 	});
 
 	module.exports = Select;
+
+	// 绑定 blur 隐藏事件
+	Select.blurOverlays = [];
+	$(document).on('click', function(e) {
+		hideBlurOverlays(e);
+	});
 
 	// 获取 className ，如果 classPrefix 不设置，就返回 ''
 	function getClassName(classPrefix, className) {
@@ -135,10 +162,6 @@ define(function(require, exports, module) {
 			return '';
 		}
 		return classPrefix + '-' + className;
-	}
-
-	function isInDocument(element) {
-		return $.contains(document.documentElement, element);
 	}
 
 	function convertSelect(select, classPrefix) {
@@ -194,6 +217,26 @@ define(function(require, exports, module) {
 			select: newModel,
 			classPrefix: classPrefix
 		};
+	}
+
+	function hideBlurOverlays(e) {
+		$(Select.blurOverlays).each(function(index, item) {
+			// 当实例为空或隐藏时，不处理
+			if (!item || !item.option('visible')) {
+				return;
+			}
+
+			// 遍历 _relativeElements ，当点击的元素落在这些元素上时，不处理
+			for (var i = 0; i < item._relativeElements.length; i++) {
+				var el = $(item._relativeElements[i])[0];
+				if (el === e.target || $.contains(el, e.target)) {
+					return;
+				}
+			}
+
+			// 到这里，判断触发了元素的 blur 事件，隐藏元素
+			item.hide();
+		});
 	}
 
 });

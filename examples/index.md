@@ -33,17 +33,19 @@ seajs.use(['select'], function(Select) {
 trigger 为任意 DOM，但必须传入 model 数据
 
 ````html
-<a href="#" id="example2" class="ui-select-trigger">请选择</a>
+<a href="#" id="example2" class="ue-select-trigger">请选择</a>
 ````
 
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
         trigger: '#example2',
+        multiple: true,
+        name: 'template',
         model: [
-            {value:'option1', text:'option1'},
-            {value:'option2', text:'option2', selected: true},
-            {value:'option3', text:'option3'}
+            {value:'0', text:'蓝色模板'},
+            {value:'1', text:'红色模板', selected: true},
+            {value:'2', text:'绿色模板'}
         ]
     });
 });

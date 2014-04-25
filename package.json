@@ -25,7 +25,7 @@
     "alias": {
       "$": "$",
       "widget": "pandora/widget/1.0.0/widget",
-      "position": "pandora/position/1.0.0/position"
+      "overlay": "pandora/overlay/1.0.0/overlay"
       },
     "devAlias": {},
     "engines": {}

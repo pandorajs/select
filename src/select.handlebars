@@ -2,14 +2,14 @@
   {{#if multiple}}
     {{#each select}}
       <li data-role="item" class="{{../classPrefix}}-item">
-        <input type="checkbox" class="{{../classPrefix}}-check" value="{{{value}}}"> {{{text}}} 
+        <input type="checkbox" class="{{../classPrefix}}-check" data-text="{{{text}}}" value="{{{value}}}"> {{{text}}} 
       </li>
     {{/each}}
   {{else}}
     {{#each select}}
     <li data-role="item"
       class="{{../classPrefix}}-item"
-      data-value="{{value}}">{{{text}}}</li>
+      data-value="{{{value}}" data-index="{{@index}}">{{{text}}}</li>
     {{/each}}
   {{/if}}
 </ul>

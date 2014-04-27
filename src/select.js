@@ -1,8 +1,8 @@
 define(function(require, exports, module) {
 	var $ = require('$');
-	var Overlay = require('overlay');
+	var Widget = require('widget');
 
-	var Select = Overlay.extend({
+	var Select = Widget.extend({
 		defaults: {
 			triggerTpl: '<a href="#"></a>',
 			classPrefix: 'ue-select',
@@ -10,91 +10,157 @@ define(function(require, exports, module) {
 			// 可多选，为 checkbox 多选
 			multiple: false,
 			// 分隔符，多选时才有用
-			delimiter: ', ',
+			delimiter: ',',
 
 			placeholder: '请选择',
 
-			// 位置
-			baseXY: {
-				x: 0,
-				y: 1
-			},
-			selfXY: {
-				x: 0,
-				y: 0
+
+			css: {
+				width: '200',
+				position: 'relative'
 			},
 
-			name: '',
-			value: '',
-
-			effect: 'none',
+			name: null,
+			value: null,
 
 			template: require('./select.handlebars'),
+
+			events: {
+				'render': function() {
+					var trigger = $(this.option('trigger'));
+					var multi = this.option('multiple');
+					var cls = multi ? 'multi' : 'single';
+
+					this.element.addClass(cls);
+				}
+			},
 
 			delegates: {
 				'click': function(e) {
 					e.stopPropagation();
 				},	
+				
+				'click [data-role=select]': function(e) {
+					this.$input.focus();
+					this.show();
+				},
 				'click [data-role=item]': function(e) {
 					var $target = $(e.currentTarget);
 					if (this.option('multiple')) {
 						var $check = $target.find('[type=checkbox]');
 						$check.trigger('click');
 					} else {
-						console.log(this)
-						this.select($target.data('index'));
+						this.select($target);
 					}
 					
+				},
+				'mouseenter [data-role=item]': function(e) {
+					var $target = $(e.currentTarget);
+					$target.addClass('active');
+				},
+				'mouseleave [data-role=item]': function(e) {
+					var $target = $(e.currentTarget);
+					$target.removeClass('active');
 				},
 				'click [type=checkbox]': function(e) {
 					e.stopPropagation();
 					var $target = $(e.currentTarget);
 					var $activeTrigger = $(this.activeTrigger);
-					var ret = [];
+					var html = '';
 					var value = [];
-
 					this.element.find(':checked').each(function(item) {
-						ret.push($(this).data('text'));
-						ret.push($(this).val());
+						var val = $(this).val();
+						html += '<div class="multi-item" data-value="' + val + '">' + $(this).data('text') + '</div>';
+						value.push(val);
 					});
-					ret = ret.length ? ret.join(this.option('delimiter')) : this.option('placeholder');
-					this.$name.val(value.join(','));
+					this.toggleInput(value.length);
+					this.$trigger.val(value.join(this.option('delimiter')));
+					this.role('selectedMulti').html(html);
 
-					$activeTrigger.text(ret);
+					// 重新设定下拉位置
+					var height = this.$selectInput.outerHeight();
+					this.$selectDropdown.css('top', height);
 				}
 			}
-
 		},
 
 		show: function() {
+			var width = this.$selectInput.outerWidth();
+			var height = this.$selectInput.outerHeight();
+
+			this.$selectInput.addClass('foucs input-active dropdown-active');
+			this.$selectDropdown.css({
+				width: width,
+				left: 0,
+				top: height,
+				visibility: 'visible'
+			}).show();
 			this.option('visible', true);
-			Select.superclass.show.call(this);
+		},
+		hide: function() {
+			this.$selectInput && this.$selectInput.removeClass('foucs input-active dropdown-active');
+			this.$selectDropdown && this.$selectDropdown.hide();
+			this.option('visible', false);
 		},
 
-		hide: function() {
-			this.option('visible', false);
-			Select.superclass.hide.call(this);
+		render: function() {
+			var self = this,
+				content, template = self.option("template");
+			if (typeof template === "function") {
+				content = template(self.option("data"));
+			} else {
+				content = self.option("content");
+			}
+			if (typeof content !== "undefined") {
+				self.element.html(content);
+			}
+			if (!self.rendered) {
+				self.element.insertAfter(self.$trigger).show();
+				self.rendered = true;
+			}
+			self.fire("render");
+
+			return self;
 		},
 
 		setup: function() {
 			var self = this;
+
+			self.$trigger = $(this.option('trigger')).hide();
 
 			self.initAttrs();
 			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
 			// 下拉框置于 trigger 下方
 			this.option('baseElement', this.option('trigger'));
 			this.render();
+			this.$selectInput = this.role('select');
+			this.$selectDropdown = this.role('dropdown');
+			this.$input = this.$('input[type=text]');
 			this._initOptions();
 			this._blurHide();
 			
 		},
 
-		select: function(index) {
-			console.log(index)
-			this.$origSelect.find('option').each(function(i) {
-				var selected = index == i ? 'selected' : '';
-				$(this).attr('selected', selected);
-			});
+		// 单选
+		select: function($target) {
+			var value = $target.data('value');
+			var text = this.$('[data-value=' + value + ']').text();
+			if (this.tagName === 'select') {
+				var index = $target.data('index');
+				this.$trigger.find('option').each(function(i) {
+					if (index == i) {
+						$(this).attr('selected', 'selected');
+					} else {
+						$(this).removeAttr('selected');
+					}
+				});
+				
+			} else if (this.tagName == 'input') {
+				this.$trigger.val(value)
+			}
+			
+			this.$input.val(text);
+			
 			this.hide();
 		},
 
@@ -106,23 +172,75 @@ define(function(require, exports, module) {
 			Select.blurOverlays.push(this);
 		},
 
+		/**
+		 * 显示后初始已选择值
+		 *
+		 * @method _initOptions
+		 * @private
+		 * @return {[type]} [description]
+		 */
 		_initOptions: function() {
-			this.options = this.role('content').children();
+			var self = this;
+			var value =  this.option('value');
+			var text;
+
+			if (this.option('multiple')) {
+				var selectedValue = this.$trigger.val();
+				if (selectedValue) {
+					selectedValue = selectedValue.split(',');
+					$.each(selectedValue, function(i, n) {
+						self.$('[type=checkbox]').each(function() {
+							var $self = $(this);
+							if ($self.val() == i) {
+								$self.trigger('click');
+								return false;
+							}
+						});
+					});
+				} 
+				this.toggleInput(!!selectedValue);
+			} else {
+				if (value) {
+					text = this.$('[data-value=' + value + ']').text();
+				}
+				if (this.tagName == 'input') {
+					value = value ? value : this.$trigger.val();
+					text = this.$('[data-value=' + value + ']').text();
+				}
+				this.$input.val(text)
+				this.$input.attr('placeholder', this.option('placeholder'));
+			}
+			
+			
+			
 		},
 
+		toggleInput: function(hasVal) {
+			if (hasVal) {
+				this.$input.css({
+					width: 4,
+					position: 'relative',
+					left: 0
+				}).removeAttr('placeholder');
+			} else {
+				this.$input.css('width', '120px').attr('placeholder', this.option('placeholder'));
+			}
+		},
+
+		/**
+		 * 显示之前初始属性值
+		 *
+		 * @method initAttrs
+		 * @return {[type]} [description]
+		 */
 		initAttrs: function() {
 			var selectName;
-			var trigger = this.$origSelect = $(this.option('trigger'));
+			var trigger = $(this.option('trigger'));
+			var tagName = this.tagName = trigger[0].tagName.toLowerCase();
 
-			if (trigger[0].tagName.toLowerCase() === 'select') {
-				var newTrigger = $(this.option('triggerTpl')).addClass(getClassName(this.option('classPrefix'), 'trigger')).text(this.option('placeholder'));
+			if (tagName === 'select') {
 
-				this.option('trigger', newTrigger);
-				// 重新初始 trigger 事件
-				this.initTrigger();
-				this.option('model', convertSelect(trigger[0], this.option('classPrefix')))
-
-				trigger.after(newTrigger).hide();
+				this.option('model', convertSelect(trigger[0], this.option('classPrefix')));
 			} else {
 				// 如果 name 存在则创建隐藏域
 				selectName = this.option('name');
@@ -138,7 +256,6 @@ define(function(require, exports, module) {
 						}).insertAfter(trigger);
 					}
 				}
-				this.$name = this.$('[name=' + this.option('name') + ']');
 				// trigger 如果为其他 DOM，则由用户提供 model
 				this.option('model', completeModel(this.option('model'), this.option('classPrefix'))) 
 			}

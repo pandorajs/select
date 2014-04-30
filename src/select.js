@@ -35,6 +35,10 @@ define(function(require, exports, module) {
 				}
 			},
 
+      insert: function() {
+        this.element.insertAfter($(this.option('trigger'))).show();
+      },
+
 			delegates: {
 				'click': function(e) {
 					e.stopPropagation();
@@ -103,7 +107,7 @@ define(function(require, exports, module) {
 			this.option('visible', false);
 		},
 
-		render: function() {
+		/*render: function() {
 			var self = this,
 				content, template = self.option("template");
 			if (typeof template === "function") {
@@ -121,7 +125,7 @@ define(function(require, exports, module) {
 			self.fire("render");
 
 			return self;
-		},
+		},*/
 
 		setup: function() {
 			var self = this;
@@ -130,8 +134,6 @@ define(function(require, exports, module) {
 
 			self.initAttrs();
 			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
-			// 下拉框置于 trigger 下方
-			this.option('baseElement', this.option('trigger'));
 			this.render();
 			this.$selectInput = this.role('select');
 			this.$selectDropdown = this.role('dropdown');

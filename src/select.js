@@ -1,7 +1,21 @@
 define(function(require, exports, module) {
-	var $ = require('$');
+  "use strict";
+  /**
+   * Select
+   *
+   * @module Select
+   * @type {exports|*}
+   */
+  var $ = require('$');
 	var Widget = require('widget');
-
+  /**
+   * 模拟 select 组件
+   *
+   * @class Select
+   * @constructor
+   * @extends Widget
+   * @type {*|Object|Function|void}
+   */
 	var Select = Widget.extend({
 		defaults: {
 			triggerTpl: '<a href="#"></a>',
@@ -87,7 +101,11 @@ define(function(require, exports, module) {
 				}
 			}
 		},
-
+    /**
+     * 显示 select
+     *
+     * @method show
+     */
 		show: function() {
 			var width = this.$selectInput.outerWidth();
 			var height = this.$selectInput.outerHeight();
@@ -101,6 +119,12 @@ define(function(require, exports, module) {
 			}).show();
 			this.option('visible', true);
 		},
+
+    /**
+     * 隐藏 select
+     *
+     * @method hide
+     */
 		hide: function() {
 			this.$selectInput && this.$selectInput.removeClass('foucs input-active dropdown-active');
 			this.$selectDropdown && this.$selectDropdown.hide();
@@ -143,7 +167,12 @@ define(function(require, exports, module) {
 			
 		},
 
-		// 单选
+    /**
+     * 单选
+     *
+     * @method select
+     * @param $target
+     */
 		select: function($target) {
 			var value = $target.data('value');
 			var text = this.$('[data-value=' + value + ']').text();
@@ -166,7 +195,14 @@ define(function(require, exports, module) {
 			this.hide();
 		},
 
-		// 除了 element 和 relativeElements，点击 body 后都会隐藏 element
+    /**
+     * 除了 element 和 relativeElements，点击 body 后都会隐藏 element
+     *
+     * @method _blurHide
+     * @private
+     * @param arr
+     * @private
+     */
 		_blurHide: function(arr) {
 			arr = $.makeArray(arr);
 			arr.push(this.element);

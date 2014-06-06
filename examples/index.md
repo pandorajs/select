@@ -70,7 +70,12 @@ seajs.use(['select'], function(Select) {
             {value:'0', text:'蓝色模板'},
             {value:'1', text:'红色模板'},
             {value:'2', text:'绿色模板'}
-        ]
+        ],
+        events: {
+            change: function(e, target) {
+                console.log(target.data('value'))
+            }
+        }
     });
 });
 ````

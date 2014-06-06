@@ -18,7 +18,6 @@ define(function(require, exports, module) {
    */
 	var Select = Widget.extend({
 		defaults: {
-			triggerTpl: '<a href="#"></a>',
 			classPrefix: 'ue-select',
 
 			// 可多选，为 checkbox 多选
@@ -174,7 +173,8 @@ define(function(require, exports, module) {
      * @param $target
      */
 		select: function($target) {
-			var value = $target.data('value');
+			var value = $target.data('value') + '';
+      var origValue = this.$trigger.val();
 			var text = this.$('[data-value=' + value + ']').text();
 			if (this.tagName === 'select') {
 				var index = $target.data('index');
@@ -191,7 +191,9 @@ define(function(require, exports, module) {
 			}
 			
 			this.$input.val(text);
-			
+      if (origValue !== value) {
+        this.fire('change', $target);
+      }
 			this.hide();
 		},
 

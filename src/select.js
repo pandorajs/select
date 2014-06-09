@@ -131,26 +131,6 @@ define(function(require, exports, module) {
 			this.option('visible', false);
 		},
 
-		/*render: function() {
-			var self = this,
-				content, template = self.option("template");
-			if (typeof template === "function") {
-				content = template(self.option("data"));
-			} else {
-				content = self.option("content");
-			}
-			if (typeof content !== "undefined") {
-				self.element.html(content);
-			}
-			if (!self.rendered) {
-				self.element.insertAfter(self.$trigger).show();
-				self.rendered = true;
-			}
-			self.fire("render");
-
-			return self;
-		},*/
-
 		setup: function() {
 			var self = this;
       var field = this.option('field');
@@ -163,18 +143,46 @@ define(function(require, exports, module) {
       } else{
         self.field = field;
       }
-			self.field = $(this.option('field')).hide();
+			self.field.hide();
 
-			self.initAttrs();
-			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
-			this.render();
-			this.$selectInput = this.role('select');
-			this.$selectDropdown = this.role('dropdown');
-			this.$input = this.$('input[type=text]');
-			this._initOptions();
-			this._blurHide();
-			
+      // 异步请求
+      if (this.option('load')) {
+        self.load(function(callback) {
+          self.option('load').apply(self, [callback]);
+        });
+      } else {
+        self.initAttrs();
+        self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
+        this.render();
+      }
+
+     /* self.initAttrs();
+      self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
+      this.render();*/
+
 		},
+
+    load: function(fn) {
+      var self = this;
+
+      fn.apply(self, [function(data) {
+        self.option('model', {
+          select: data,
+          classPrefix: self.option('classPrefix')
+        });
+        self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
+        self.render();
+      }]);
+    },
+
+    render: function() {
+      Select.superclass.render.call(this);
+      this.$selectInput = this.role('select');
+      this.$selectDropdown = this.role('dropdown');
+      this.$input = this.$('input[type=text]');
+      this._initOptions();
+      this._blurHide();
+    },
 
     /**
      * 单选
@@ -185,7 +193,7 @@ define(function(require, exports, module) {
 		select: function($target) {
 			var value = $target.data('value') + '';
       var origValue = this.field.val();
-			var text = this.$('[data-value=' + value + ']').text();
+			var text = this.$('[data-value="' + value + '"]').text();
 			if (this.tagName === 'select') {
 				var index = $target.data('index');
 				this.field.find('option').each(function(i) {

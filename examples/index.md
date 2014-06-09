@@ -14,7 +14,7 @@ trigger 为 select，并默认选中 option2
 
 ````html
 <select id="example1">
-    <option value="0">蓝色</option>
+    <option value="0">蓝色多多多多多多</option>
     <option value="1">红色</option>
     <option value="2">绿色</option>
 </select>
@@ -96,6 +96,13 @@ seajs.use(['select'], function(Select) {
         field: '#example4',
         //value: '2',
         multiple: true,
+        load: function(callback){
+            callback([
+                {value:'0', text:'蓝色模板1'},
+                {value:'1', text:'红色模板'},
+                {value:'2', text:'绿色模板'}
+            ])
+        },
         model: [
             {value:'0', text:'蓝色模板'},
             {value:'1', text:'红色模板'},

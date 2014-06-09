@@ -23,7 +23,7 @@ trigger 为 select，并默认选中 option2
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
-        trigger: '#example1',
+        field: '#example1',
         value: '1'
     });
 });
@@ -41,7 +41,7 @@ trigger 为任意 DOM，但必须传入 model 数据
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
-        trigger: '#example2',
+        field: '#example2',
         //multiple: true,
         name: 'template',
         model: [
@@ -64,7 +64,7 @@ trigger 为 input, 默认值为 1,如有设置value值，能过js配置的优先
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
-        trigger: '#example3',
+        field: '#example3',
         //value: '2',
         model: [
             {value:'0', text:'蓝色模板'},
@@ -93,7 +93,7 @@ trigger 为 input, 如有设置value值，能过js配置的优先级高， 同�
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
-        trigger: '#example4',
+        field: '#example4',
         //value: '2',
         multiple: true,
         model: [

@@ -27,6 +27,8 @@ define(function(require, exports, module) {
 
 			placeholder: '请选择',
 
+      // input 或 select 元素，必填
+      field: null,
 
 			css: {
 				width: '200',
@@ -40,7 +42,6 @@ define(function(require, exports, module) {
 
 			events: {
 				'render': function() {
-					var trigger = $(this.option('trigger'));
 					var multi = this.option('multiple');
 					var cls = multi ? 'multi' : 'single';
 
@@ -49,7 +50,7 @@ define(function(require, exports, module) {
 			},
 
       insert: function() {
-        this.element.insertAfter($(this.option('trigger'))).show();
+        this.element.insertAfter($(this.option('field'))).show();
       },
 
 			delegates: {
@@ -91,7 +92,7 @@ define(function(require, exports, module) {
 						value.push(val);
 					});
 					this.toggleInput(value.length);
-					this.$trigger.val(value.join(this.option('delimiter')));
+					this.field.val(value.join(this.option('delimiter')));
 					this.role('selectedMulti').html(html);
 
 					// 重新设定下拉位置
@@ -152,8 +153,17 @@ define(function(require, exports, module) {
 
 		setup: function() {
 			var self = this;
+      var field = this.option('field');
 
-			self.$trigger = $(this.option('trigger')).hide();
+      if (field === null) {
+        throw new Error('请设置field');
+      }
+      if (typeof field === 'string') {
+        self.field = $(field);
+      } else{
+        self.field = field;
+      }
+			self.field = $(this.option('field')).hide();
 
 			self.initAttrs();
 			self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
@@ -174,11 +184,11 @@ define(function(require, exports, module) {
      */
 		select: function($target) {
 			var value = $target.data('value') + '';
-      var origValue = this.$trigger.val();
+      var origValue = this.field.val();
 			var text = this.$('[data-value=' + value + ']').text();
 			if (this.tagName === 'select') {
 				var index = $target.data('index');
-				this.$trigger.find('option').each(function(i) {
+				this.field.find('option').each(function(i) {
 					if (index == i) {
 						$(this).attr('selected', 'selected');
 					} else {
@@ -187,7 +197,7 @@ define(function(require, exports, module) {
 				});
 				
 			} else if (this.tagName == 'input') {
-				this.$trigger.val(value)
+				this.field.val(value)
 			}
 			
 			this.$input.val(text);
@@ -225,7 +235,7 @@ define(function(require, exports, module) {
 			var text;
 
 			if (this.option('multiple')) {
-				var selectedValue = this.$trigger.val();
+				var selectedValue = this.field.val();
 				if (selectedValue) {
 					selectedValue = selectedValue.split(',');
 					$.each(selectedValue, function(i, n) {
@@ -244,15 +254,11 @@ define(function(require, exports, module) {
 					text = this.$('[data-value=' + value + ']').text();
 				}
 				if (this.tagName == 'input') {
-					value = value ? value : this.$trigger.val();
+					value = value ? value : this.field.val();
 					text = this.$('[data-value=' + value + ']').text();
 				}
-				this.$input.val(text)
-				this.$input.attr('placeholder', this.option('placeholder'));
+				this.$input.val(text).attr('placeholder', this.option('placeholder'));
 			}
-			
-			
-			
 		},
 
 		toggleInput: function(hasVal) {
@@ -275,12 +281,12 @@ define(function(require, exports, module) {
 		 */
 		initAttrs: function() {
 			var selectName;
-			var trigger = $(this.option('trigger'));
-			var tagName = this.tagName = trigger[0].tagName.toLowerCase();
+			var field = $(this.option('field'));
+			var tagName = this.tagName = field[0].tagName.toLowerCase();
 
 			if (tagName === 'select') {
 
-				this.option('model', convertSelect(trigger[0], this.option('classPrefix')));
+				this.option('model', convertSelect(field[0], this.option('classPrefix')));
 			} else {
 				// 如果 name 存在则创建隐藏域
 				selectName = this.option('name');
@@ -293,7 +299,7 @@ define(function(require, exports, module) {
 							position: 'absolute',
 							left: '-99999px',
 							zIndex: -100
-						}).insertAfter(trigger);
+						}).insertAfter(field);
 					}
 				}
 				// trigger 如果为其他 DOM，则由用户提供 model

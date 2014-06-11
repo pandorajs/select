@@ -144,7 +144,8 @@ define(function(require, exports, module) {
         self.field = field;
       }
 			self.field.hide();
-
+      // 存储 field 的 tagName
+      this.tagName = self.field[0].tagName.toLowerCase();
       // 异步请求
       if (this.option('load')) {
         self.load(function(callback) {
@@ -155,11 +156,6 @@ define(function(require, exports, module) {
         self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
         this.render();
       }
-
-     /* self.initAttrs();
-      self.data($.extend(self.option('model'), {multiple: self.option('multiple')}));
-      this.render();*/
-
 		},
 
     load: function(fn) {
@@ -259,11 +255,11 @@ define(function(require, exports, module) {
 				this.toggleInput(!!selectedValue);
 			} else {
 				if (value) {
-					text = this.$('[data-value=' + value + ']').text();
+					text = this.$('[data-value="' + value + '"]').text();
 				}
 				if (this.tagName == 'input') {
 					value = value ? value : this.field.val();
-					text = this.$('[data-value=' + value + ']').text();
+					text = this.$('[data-value="' + value + '"]').text();
 				}
 				this.$input.val(text).attr('placeholder', this.option('placeholder'));
 			}
@@ -289,8 +285,8 @@ define(function(require, exports, module) {
 		 */
 		initAttrs: function() {
 			var selectName;
-			var field = $(this.option('field'));
-			var tagName = this.tagName = field[0].tagName.toLowerCase();
+			var field = this.field;
+			var tagName = this.tagName;
 
 			if (tagName === 'select') {
 

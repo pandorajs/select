@@ -245,7 +245,7 @@ define(function(require, exports, module) {
 					$.each(selectedValue, function(i, n) {
 						self.$('[type=checkbox]').each(function() {
 							var $self = $(this);
-							if ($self.val() == i) {
+							if ($self.val() == n) {
 								$self.trigger('click');
 								return false;
 							}
@@ -289,8 +289,14 @@ define(function(require, exports, module) {
 			var tagName = this.tagName;
 
 			if (tagName === 'select') {
+        var model = this.option('model');
+        // option 设置 model 优先级高
+        if (model) {
+          this.option('model', completeModel(model, this.option('classPrefix')))
+        } else {
+          this.option('model', convertSelect(field[0], this.option('classPrefix')));
+        }
 
-				this.option('model', convertSelect(field[0], this.option('classPrefix')));
 			} else {
 				// 如果 name 存在则创建隐藏域
 				selectName = this.option('name');

@@ -87,7 +87,7 @@ trigger 为 input, 如有设置value值，能过js配置的优先级高， 同�
 > **注：多选只支持在js配置mulitple**
 
 ````html
-<input value="" id="example4" name="theme">
+<input value="00,01" id="example4" name="theme">
 ````
 
 ````javascript
@@ -98,16 +98,11 @@ seajs.use(['select'], function(Select) {
         multiple: true,
         load: function(callback){
             callback([
-                {value:'0', text:'蓝色模板1'},
-                {value:'1', text:'红色模板'},
-                {value:'2', text:'绿色模板'}
+                {value:'00', text:'蓝色模板1'},
+                {value:'01', text:'红色模板'},
+                {value:'02', text:'绿色模板'}
             ])
-        },
-        model: [
-            {value:'0', text:'蓝色模板'},
-            {value:'1', text:'红色模板'},
-            {value:'2', text:'绿色模板'}
-        ]
+        }
     });
 });
 ````

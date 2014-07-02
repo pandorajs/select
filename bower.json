@@ -1,0 +1,21 @@
+{
+  "name": "select",
+  "version": "1.0.0",
+  "homepage": "https://github.com/pandorajs/select",
+  "authors": [
+    "lynzz <lynzz168@gmail.com>"
+  ],
+  "description": "pandora select",
+  "main": "select.js",
+  "keywords": [
+    "select"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,32 +1,55 @@
 {
-  "family": "pandora",
-  "name": "select",
+  "name": "Select",
   "version": "1.0.0",
-  "description": "select",
+  "description": "",
+  "keywords": [ "select", "pandora", "widget", "seajs" ],
   "homepage": "https://github.com/pandorajs/select",
-  "author": "lynzz",
-  "maintainers": [
-    "lynzz"
+  "bugs": {
+    "url": "https://github.com/pandorajs/select/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/pandorajs/select/blob/master/LICENSE-MIT"
+    }
   ],
+  "author": {
+    "name": "pandorajs",
+    "url": "https://github.com/pandorajs"
+  },
+  "main": "Gruntfile.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/pandorajs/select.git"
   },
-  "bugs": {
-    "url": ""
+  "scripts": {
+    "test": "grunt qunit"
   },
-  "keywords": [],
-  "licenses": "MIT",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-cmd-transport": "*",
+    "grunt-cmd-concat": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-yuidoc": "*",
+    "grunt-coveralls": "*",
+    "grunt-qunit-istanbul": "*",
+    "matchdep": "*"
+  },
+  "family": "pandora",
   "spm": {
-    "output": [
-      "select.js",
-      "select.css"
-    ],
+    "output": [ "select.js" ],
     "alias": {
       "$": "$",
-      "widget": "pandora/widget/1.0.0/widget"
-      },
-    "devAlias": {},
-    "engines": {}
+      "widget": "pandora/widget/1.0.0/widget",
+      "handlebars": "gallery/handlebars/1.0.2/handlebars"
+    }
   }
 }

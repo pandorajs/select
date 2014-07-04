@@ -1,10 +1,26 @@
 define(function(require, exports, module) {
-  "use strict";
+  'use strict';
   /**
    * Select
    *
    * @module Select
-   * @type {exports|*}
+   * @class Select
+   * @constructor
+   * @extends Widget
+   * @examples
+   * // 将原生 dom 转换为 select
+   * var select = new Select({
+   *   filed: '#select'
+   * });
+   *
+   * // 通过 model 定义 select 数据
+   * var select = new Select({
+   *   field: '#select1',
+   *   model: [
+   *     {text: 'text1', value:'1'},
+   *     {text: 'text2}, value: '2'}
+   *   ]
+   * });
    */
   var $ = require('$');
 	var Widget = require('widget');
@@ -17,6 +33,12 @@ define(function(require, exports, module) {
    * @type {*|Object|Function|void}
    */
 	var Select = Widget.extend({
+    /**
+     * Select 默认配置
+     *
+     * @property {Object} defaults
+     * @type {Ojbect}
+     */
 		defaults: {
 			classPrefix: 'ue-select',
 
@@ -201,7 +223,7 @@ define(function(require, exports, module) {
 				});
 				
 			} else if (this.tagName == 'input') {
-				this.field.val(value)
+				this.field.val(value);
 			}
 			
 			this.$input.val(text);
@@ -292,7 +314,7 @@ define(function(require, exports, module) {
         var model = this.option('model');
         // option 设置 model 优先级高
         if (model) {
-          this.option('model', completeModel(model, this.option('classPrefix')))
+          this.option('model', completeModel(model, this.option('classPrefix')));
         } else {
           this.option('model', convertSelect(field[0], this.option('classPrefix')));
         }
@@ -312,8 +334,11 @@ define(function(require, exports, module) {
 						}).insertAfter(field);
 					}
 				}
+        if (!this.option('model')) {
+          throw new Error('option model invalid');
+        }
 				// trigger 如果为其他 DOM，则由用户提供 model
-				this.option('model', completeModel(this.option('model'), this.option('classPrefix'))) 
+				this.option('model', completeModel(this.option('model'), this.option('classPrefix')));
 			}
 
 		}

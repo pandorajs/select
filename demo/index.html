@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>select</title>
+<script src="../vendor/jquery/jquery.js"></script>
+<script src="../vendor/seajs/sea.js"></script>
+<script src="../vendor/seajs/seajs-text.js"></script>
+<script>
+  seajs.config({
+    'base': '../sea-modules/',
+    'map': [
+      ['/sea-modules/jquery', '/vendor/jquery/jquery']
+    ],
+    'alias': {
+      '$': 'jquery',
+      '$-debug': 'jquery',
+      'handlebars': 'gallery/handlebars/1.0.2/handlebars',
+      'widget': 'pandora/widget/1.0.0/widget'
+    }
+  });
+  seajs.use('../src/select.css');
+</script>
+</head>
+<body>
+<h2 id="可根据原生的-select-初始化">可根据原生的 select 初始化<a href="#可根据原生的-select-初始化" class="anchor">¶</a> </h2>
+<p>有label，有默认</p>
+<div class="nico-insert-code">
+  <select id="example10">
+    <option value="0">蓝色多多多多多多</option>
+    <option value="1">红色</option>
+    <option value="2">绿色</option>
+  </select>
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example10"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色多多多多多多<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>红色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example10',
+        value: '1',
+        label: '颜色'
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example10'</span>,
+        value: <span class="string">'1'</span>,
+        label: <span class="string">'颜色'</span>
+    });
+});</code>
+</pre>
+</div>
+
+<p>有label，无默认（则默认第一个）</p>
+<div class="nico-insert-code">
+  <select id="example101">
+    <option value="0">蓝色多多多多多多</option>
+    <option value="1">红色</option>
+    <option value="2">绿色</option>
+  </select>
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example101"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色多多多多多多<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>红色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example101',
+        label: '颜色'
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example101'</span>,
+        label: <span class="string">'颜色'</span>
+    });
+});</code>
+</pre>
+</div>
+
+<p>trigger 为 select，并默认选中 option2</p>
+<div class="nico-insert-code">
+  <select id="example1">
+    <option value="0">蓝色多多多多多多</option>
+    <option value="1">红色</option>
+    <option value="2">绿色</option>
+  </select>
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example1"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色多多多多多多<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>红色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example1',
+        value: '1'
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example1'</span>,
+        value: <span class="string">'1'</span>
+    });
+});</code>
+</pre>
+</div>
+
+<p>trigger 为 select，默认无选中</p>
+<div class="nico-insert-code">
+  <select id="example111">
+    <option value="0">蓝色多多多多多多</option>
+    <option value="1">红色</option>
+    <option value="2">绿色</option>
+  </select>
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example111"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色多多多多多多<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>红色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example111'
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example111'</span>
+    });
+});</code>
+</pre>
+</div>
+
+<p>trigger 为 select，并默认选中 option2</p>
+<div class="nico-insert-code">
+  <select id="example11">
+    <option value="0">蓝色多多多多多多</option>
+    <option value="1" selected>红色</option>
+    <option value="2">绿色</option>
+  </select>
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example11"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色多多多多多多<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span> <span class="attribute">selected</span>&gt;</span>红色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example11'
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example11'</span>
+    });
+});</code>
+</pre>
+</div>
+
+<h2 id="可直接传入-dom-初始化">可直接传入 DOM 初始化<a href="#可直接传入-dom-初始化" class="anchor">¶</a> </h2>
+<p>trigger 为任意 DOM，但必须传入 model 数据</p>
+<div class="nico-insert-code"> <a href="#" id="example2">请选择</a> </div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"#"</span> <span class="attribute">id</span>=<span class="value">"example2"</span>&gt;</span>请选择<span class="tag">&lt;/<span class="title">a</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example2',
+        //multiple: true,
+        name: 'template',
+        model: [
+            {value:'0', text:'蓝色模板'},
+            {value:'1', text:'红色模板'},
+            {value:'2', text:'绿色模板'}
+        ]
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example2'</span>,
+        <span class="comment">//multiple: true,</span>
+        name: <span class="string">'template'</span>,
+        model: [
+            {value:<span class="string">'0'</span>, text:<span class="string">'蓝色模板'</span>},
+            {value:<span class="string">'1'</span>, text:<span class="string">'红色模板'</span>},
+            {value:<span class="string">'2'</span>, text:<span class="string">'绿色模板'</span>}
+        ]
+    });
+});</code>
+</pre>
+</div>
+<h2 id="可根据原生的-input-初始化">可根据原生的 input 初始化<a href="#可根据原生的-input-初始化" class="anchor">¶</a> </h2>
+<p>trigger 为 input, 默认值为 1,如有设置value值，能过js配置的优先级高， 同上必须传入 model 数据</p>
+<div class="nico-insert-code">
+  <input value="1" id="example3" name="theme">
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">input</span> <span class="attribute">value</span>=<span class="value">"1"</span> <span class="attribute">id</span>=<span class="value">"example3"</span> <span class="attribute">name</span>=<span class="value">"theme"</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example3',
+        //value: '2',
+        model: [
+            {value:'0', text:'蓝色模板'},
+            {value:'1', text:'红色模板'},
+            {value:'2', text:'绿色模板'}
+        ],
+        events: {
+            change: function(e, target) {
+                console.log(target.data('value'))
+            }
+        }
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example3'</span>,
+        <span class="comment">//value: '2',</span>
+        model: [
+            {value:<span class="string">'0'</span>, text:<span class="string">'蓝色模板'</span>},
+            {value:<span class="string">'1'</span>, text:<span class="string">'红色模板'</span>},
+            {value:<span class="string">'2'</span>, text:<span class="string">'绿色模板'</span>}
+        ],
+        events: {
+            change: <span class="function">
+<span class="keyword">function</span>
+<span class="params">(e, target)</span> {</span>
+                console.log(target.data(<span class="string">'value'</span>))
+            }
+        }
+    });
+});</code>
+</pre>
+</div>
+<h2 id="可根据原生的-input-初始化多选框">可根据原生的 input 初始化多选框<a href="#可根据原生的-input-初始化多选框" class="anchor">¶</a> </h2>
+<p>trigger 为 input, 如有设置value值，能过js配置的优先级高， 同上必须传入 model 数据</p>
+<blockquote>
+  <p> <strong>注：多选只支持在js配置mulitple</strong> </p>
+</blockquote>
+<div class="nico-insert-code">
+  <input value="00,01" id="example4" name="theme">
+</div>
+<div class="highlight">
+  <pre>
+<code class="xml">
+<span class="tag">&lt;<span class="title">input</span> <span class="attribute">value</span>=<span class="value">"00,01"</span> <span class="attribute">id</span>=<span class="value">"example4"</span> <span class="attribute">name</span>=<span class="value">"theme"</span>&gt;</span>
+</code>
+</pre>
+</div>
+<script>seajs.use(['../src/select'], function(Select) {
+    new Select({
+        field: '#example4',
+        //value: '2',
+        multiple: true,
+        load: function(callback){
+            callback([
+                {value:'00', text:'蓝色模板1'},
+                {value:'01', text:'红色模板'},
+                {value:'02', text:'绿色模板'}
+            ])
+        }
+    });
+});</script>
+<div class="highlight">
+  <pre>
+<code class="javascript">seajs.use([<span class="string">'pandora/Select/1.0.0/select'</span>], <span class="function">
+<span class="keyword">function</span>
+<span class="params">(Select)</span> {</span>
+    <span class="keyword">new</span> Select({
+        field: <span class="string">'#example4'</span>,
+        <span class="comment">//value: '2',</span>
+        multiple: <span class="literal">true</span>,
+        load: <span class="function">
+<span class="keyword">function</span>
+<span class="params">(callback)</span>{</span>
+            callback([
+                {value:<span class="string">'00'</span>, text:<span class="string">'蓝色模板1'</span>},
+                {value:<span class="string">'01'</span>, text:<span class="string">'红色模板'</span>},
+                {value:<span class="string">'02'</span>, text:<span class="string">'绿色模板'</span>}
+            ])
+        }
+    });
+});</code>
+</pre>
+</div>
+</body>
+</html>

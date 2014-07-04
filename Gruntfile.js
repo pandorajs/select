@@ -116,11 +116,19 @@ module.exports = function(grunt) {
         idleading: '<%= idleading %>',
         alias: '<%= pkg.spm.alias %>'
       },
-      dist: {
+      js: {
         files: [{
           expand: true,
           cwd: 'src/',
           src: ['*.js'],
+          dest: '.build/'
+        }]
+      },
+      handlebars: {
+        files: [{
+          expand: true,
+          cwd: 'src/',
+          src: ['*.handlebars'],
           dest: '.build/'
         }]
       }
@@ -135,7 +143,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: '.build/',
-          src: ['package*.js'],
+          src: ['*.js'],
           dest: 'dist/'
         }]
       }

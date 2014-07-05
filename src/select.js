@@ -140,7 +140,7 @@ var Select = Widget.extend({
     optionLoad = self.option('load');
     // 异步请求
     if (optionLoad) {
-      optionLoad(function (data) {
+      optionLoad.call(self, function (data) {
         self.setDataAndRender(data);
       });
     } else {
@@ -169,10 +169,9 @@ var Select = Widget.extend({
       self.initSingle();
     }
 
-    if (self.maxString) {
-      self.role('selected').css('min-width',
-          getStringWidth(self.role('selected'), self.maxString));
-    }
+    // 计算最长值宽度
+    self.role('selected').css('min-width',
+        getStringWidth(self.role('selected'), self.data('select')));
 
     self.initDelegates({
       'mousedown': function (e) {
@@ -337,9 +336,9 @@ var Select = Widget.extend({
     if (tagName === 'select') {
       // option 设置 model 优先级高
       if (model && model.length) {
-        self.data('select', completeModel(model, self.option('value'), self));
+        self.data('select', completeModel(model, self.option('value')));
       } else {
-        self.data('select', convertSelect(field[0], self.option('value'), self));
+        self.data('select', convertSelect(field[0], self.option('value')));
       }
     } else {
       // 如果 name 存在则创建隐藏域
@@ -362,7 +361,7 @@ var Select = Widget.extend({
       }
 
       // trigger 如果为其他 DOM，则由用户提供 model
-      self.data('select', completeModel(model, self.option('value'), self));
+      self.data('select', completeModel(model, self.option('value')));
     }
   }
 });
@@ -376,9 +375,7 @@ function convertSelect (select, value, scope) {
       options = select.options,
       l = options.length,
       selected,
-      selectedFound = false,
-      maxlength = 0,
-      maxString = '';
+      selectedFound = false;
 
   for (i = 0; i < l; i++) {
     option = options[i];
@@ -400,15 +397,8 @@ function convertSelect (select, value, scope) {
       disabled: option.disabled
     };
 
-    if (o.text.length > maxlength) {
-      maxlength = o.text.length;
-      maxString = o.text;
-    }
-
     model.push(o);
   }
-
-  scope.maxString = maxString;
 
   // 当所有都没有设置 selected，默认设置第一个
   if (!selectedFound && model.length) {
@@ -419,12 +409,10 @@ function convertSelect (select, value, scope) {
 }
 
 // 补全 model 对象
-function completeModel (model, value, scope) {
+function completeModel (model, value) {
   var i, j, l, ll, o,
       newModel = [],
-      selectedIndexes = [],
-      maxlength = 0,
-      maxString = '';
+      selectedIndexes = [];
 
   for (i = 0, l = model.length; i < l; i++) {
     o = $.extend({}, model[i]);
@@ -436,15 +424,8 @@ function completeModel (model, value, scope) {
     o.selected = !!o.selected;
     o.disabled = !!o.disabled;
 
-    if (o.text.length > maxlength) {
-      maxlength = o.text.length;
-      maxString = o.text;
-    }
-
     newModel.push(o);
   }
-
-  scope.maxString = maxString;
 
   if (selectedIndexes.length) {
     // 如果有多个 selected 则选中最后一个
@@ -459,23 +440,34 @@ function completeModel (model, value, scope) {
   return newModel;
 }
 
-function getStringWidth (sibling, value) {
-  var dummy = $('<div/>')
-        .css({
-          position: 'absolute',
-          left: -9999,
-          top: -9999,
-          width: 'auto',
-          whiteSpace: 'nowrap'
-        })
-        .html(value.replace(/ /g, '&nbsp;'))
-        .insertAfter(sibling),
+function getStringWidth (sibling, data) {
+  var i, l, m = 0, n, text, value, dummy, width;
+
+  for (i = 0, l = data.length; i < l; i++) {
+    text = data[i].text;
+    n = text.replace(/[^\x00-\xff]/g, 'xx').length;
+    if (n > m) {
+      m = n;
+      value = text;
+    }
+  }
+
+  dummy = $('<div/>')
+    .css({
+      position: 'absolute',
+      left: -9999,
+      top: -9999,
+      width: 'auto',
+      whiteSpace: 'nowrap'
+    })
+    .html(value.replace(/ /g, '&nbsp;'))
+    .insertAfter(sibling),
 
     width = dummy.width();
 
   dummy.remove();
 
-  return width + 2;
+  return width;
 }
 
 });

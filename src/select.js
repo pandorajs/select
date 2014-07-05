@@ -66,6 +66,8 @@ var Select = Widget.extend({
     name: null,
     value: null,
 
+    selectedIndex: 0,
+
     template: require('./select.handlebars'),
 
     events: {
@@ -119,18 +121,19 @@ var Select = Widget.extend({
         optionLoad;
 
     if (!field) {
-      throw new Error('请设置field');
+      throw new Error('请设置 field');
     }
 
     field = self.field = $(field).hide();
 
     // 存储 field 的 tagName
     self.tagName = field[0].tagName.toLowerCase();
-    // 存储当前值
-    // self.text = field[0].text;
 
     if (!self.option('label')) {
-      self.option('label', field.data('label'));
+      self.option('label',
+          field.data('label') ||
+          self.option('placeholder') ||
+          self.field.prop('placeholder'));
     }
 
     self.on('render', function () {
@@ -152,15 +155,17 @@ var Select = Widget.extend({
   setDataAndRender: function (data) {
     var self = this;
 
-    self.data('select', data);
-    self.data('multiple', self.option('multiple'));
+    self.data({
+      select: data,
+      multiple: self.option('multiple')
+    });
+
     self.render();
   },
 
   postRender: function () {
     var self = this;
 
-    // self.input = self.$('input[type=text]');
     self.input = self.role('selected');
 
     if (self.option('multiple')) {
@@ -185,15 +190,21 @@ var Select = Widget.extend({
 
   initSingle: function () {
     var self = this,
-        value = self.option('value') || self.field.val(),
-        text = self.$('[data-value="' + value + '"]').text();
+        data = self.data('select'),
+        i, l, value, text;
+
+    for (i = 0, l = data.length; i < l; i++ ) {
+      if (data[i].selected) {
+        value = data[i].value;
+        text = data[i].text
+        break;
+      }
+    }
 
     // 存储当前值
     self.text = text;
 
-    self.input.text(text)
-        .attr('placeholder',
-            self.option('placeholder') || self.field.prop('placeholder'));
+    self.input.text(text || self.option('label'));
 
     // 回填
     self.field.val(value);
@@ -224,7 +235,7 @@ var Select = Widget.extend({
 
     roleSelect.addClass('focus input-active dropdown-active');
 
-    if (self.option('label')) {
+    if (!self.option('multiple') && self.option('label')) {
       self.input.text(self.option('label'))
           .addClass('is-label');
     }
@@ -250,7 +261,7 @@ var Select = Widget.extend({
     self.role('select')
         .removeClass('focus input-active dropdown-active');
 
-    if (self.option('label')) {
+    if (!self.option('multiple') && self.option('label')) {
       self.input.text(self.text)
           .removeClass('is-label');
     }
@@ -313,7 +324,7 @@ var Select = Widget.extend({
 
     self.field.val(values.join(self.option('delimiter')));
 
-    self.role('selected').html(html);
+    self.role('selected').html(values.length ? html : self.option('label'));
 
     // 重新设定下拉位置
     self.role('dropdown').css('top',
@@ -331,16 +342,24 @@ var Select = Widget.extend({
         selectName,
         field = self.field,
         tagName = self.tagName,
-        model = self.option('model');
+        model = self.option('model'),
+        value = self.option('value') || self.field.val();
 
     if (tagName === 'select') {
       // option 设置 model 优先级高
       if (model && model.length) {
-        self.data('select', completeModel(model, self.option('value')));
+        self.data('select', completeModel(model, value));
       } else {
-        self.data('select', convertSelect(field[0], self.option('value')));
+        self.data('select', convertSelect(field[0], value));
       }
     } else {
+      if (!model || !model.length) {
+        throw new Error('option model invalid');
+      }
+
+      // trigger 如果为其他 DOM，则由用户提供 model
+      self.data('select', completeModel(model, value));
+
       // 如果 name 存在则创建隐藏域
       selectName = self.option('name');
 
@@ -355,20 +374,13 @@ var Select = Widget.extend({
           }).insertAfter(field);
         }
       }
-
-      if (!model) {
-        throw new Error('option model invalid');
-      }
-
-      // trigger 如果为其他 DOM，则由用户提供 model
-      self.data('select', completeModel(model, self.option('value')));
     }
   }
 });
 
 module.exports = Select;
 
-function convertSelect (select, value, scope) {
+function convertSelect (select, value) {
   var i, j, o, option,
       fields, field,
       model = [],
@@ -380,24 +392,26 @@ function convertSelect (select, value, scope) {
   for (i = 0; i < l; i++) {
     option = options[i];
 
-    if (value !== null) {
-      selected = (value === option.value);
-    } else {
-      selected = option.defaultSelected && option.selected;
-    }
-
-    if (selected) {
-      selectedFound = true;
+    if (!selectedFound) {
+      if (value !== null) {
+        selected = (value === option.value);
+      } else {
+        selected = option.defaultSelected && option.selected;
+      }
     }
 
     o = {
       text: option.text,
       value: option.value,
-      selected: selected,
+      selected: !selectedFound && selected,
       disabled: option.disabled
     };
 
     model.push(o);
+
+    if (selected) {
+      selectedFound = true;
+    }
   }
 
   // 当所有都没有设置 selected，默认设置第一个
@@ -412,17 +426,23 @@ function convertSelect (select, value, scope) {
 function completeModel (model, value) {
   var i, j, l, ll, o,
       newModel = [],
-      selectedIndexes = [];
+      selectedIndexes = [],
+      selected;
 
   for (i = 0, l = model.length; i < l; i++) {
     o = $.extend({}, model[i]);
 
-    if (o.selected) {
+    if (value !== null) {
+      selected = (value === o.value);
+    } else {
+      selected = o.selected;
+    }
+
+    if (selected) {
       selectedIndexes.push(i);
     }
 
-    o.selected = !!o.selected;
-    o.disabled = !!o.disabled;
+    o.selected = !!selected;
 
     newModel.push(o);
   }
@@ -430,10 +450,12 @@ function completeModel (model, value) {
   if (selectedIndexes.length) {
     // 如果有多个 selected 则选中最后一个
     selectedIndexes.pop();
-    for (j = 0, ll = selectedIndexes.length; j < ll; j++) {
-      newModel[selectedIndexes[j]].selected = false;
+
+    while ((j = selectedIndexes.shift()) >= 0) {
+      newModel[j].selected = false;
     }
-  } else { //当所有都没有设置 selected 则默认设置第一个
+  } else {
+    //当所有都没有设置 selected 则默认设置第一个
     newModel[0].selected = true;
   }
 

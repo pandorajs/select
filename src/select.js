@@ -227,7 +227,7 @@ var Select = Widget.extend({
 
     if (self.option('label')) {
       self.input.text(self.option('label'))
-          .addClass('label');
+          .addClass('is-label');
     }
 
     self.role('dropdown').css({
@@ -253,7 +253,7 @@ var Select = Widget.extend({
 
     if (self.option('label')) {
       self.input.text(self.text)
-          .removeClass('label');
+          .removeClass('is-label');
     }
 
     self.role('dropdown')

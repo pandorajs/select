@@ -63,6 +63,7 @@
   box-sizing: border-box;
 }
 .ue-select .dropdown .item {
+  display: block;
   overflow: hidden;
   cursor: pointer;
   padding: 5px 8px;

@@ -5,9 +5,10 @@
   <div class="dropdown-content" data-role="content">
     {{#if multiple}}
       {{#each select}}
-        <div class="item" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
-         <input type="checkbox" class="checkbox" data-text="{{{text}}}" value="{{{value}}}"> {{{text}}}
-        </div>
+        <label class="item{{#if selected}} selected{{/if}}" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
+          <input type="checkbox" data-text="{{{text}}}" value="{{{value}}}"{{#if selected}} checked{{/if}}>
+          <span>{{{text}}}</span>
+        </label>
       {{/each}}
     {{else}}
       {{#each select}}

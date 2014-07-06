@@ -86,17 +86,16 @@ var Select = Widget.extend({
       'click': function (e) {
         e.stopPropagation();
       },
-
       'click [data-role=select]': function (e) {
         this.input.focus();
         this.showList();
       },
       'click [data-role=item]': function (e) {
-        var item = $(e.currentTarget);
-        if (this.option('multiple')) {
-          item.find('[type=checkbox]').trigger('click');
+        if (e.currentTarget.tagName === 'LABEL') {
+          e.stopPropagation();
+          this.check();
         } else {
-          this.select(item);
+          this.select($(e.currentTarget));
         }
       },
       'mouseenter [data-role=item]': function(e) {
@@ -104,13 +103,6 @@ var Select = Widget.extend({
       },
       'mouseleave [data-role=item]': function(e) {
         $(e.currentTarget).removeClass('active');
-      },
-      'click [type=checkbox]': function(e) {
-        var item = $(e.currentTarget);
-
-        e.stopPropagation();
-
-        this.check(item);
       }
     }
   },
@@ -176,7 +168,8 @@ var Select = Widget.extend({
 
     // 计算最长值宽度
     self.role('selected').css('min-width',
-        getStringWidth(self.role('selected'), self.data('select')));
+        (self.option('multiple') ? 20 : 0) +
+            getStringWidth(self.role('selected'), self.data('select')));
 
     self.initDelegates({
       'mousedown': function (e) {
@@ -196,7 +189,7 @@ var Select = Widget.extend({
     for (i = 0, l = data.length; i < l; i++ ) {
       if (data[i].selected) {
         value = data[i].value;
-        text = data[i].text
+        text = data[i].text;
         break;
       }
     }
@@ -303,14 +296,14 @@ var Select = Widget.extend({
    * 多选
    *
    * @method check
-   * @param item
    */
-  check: function (item) {
+  check: function () {
     var self = this,
+        roleSelect = self.role('select'),
         html = '',
         values = [];
 
-    self.$(':checked').each(function (item) {
+    self.$(':checked').each(function () {
       var value = this.value;
 
       html += '<div class="item" data-value="' + value + '">' +
@@ -320,15 +313,17 @@ var Select = Widget.extend({
       values.push(value);
     });
 
-    self.role('select').toggleClass('has-items', !!values.length);
+    roleSelect.toggleClass('has-items', !!values.length);
 
     self.field.val(values.join(self.option('delimiter')));
 
     self.role('selected').html(values.length ? html : self.option('label'));
 
     // 重新设定下拉位置
-    self.role('dropdown').css('top',
-        self.role('select').outerHeight());
+    self.role('dropdown').css({
+      width: roleSelect.outerWidth(),
+      top: roleSelect.outerHeight()
+    });
   },
 
   /**

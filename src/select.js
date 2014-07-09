@@ -196,8 +196,12 @@ var Select = Widget.extend({
 
     // 存储当前值
     self.text = text;
-
-    self.input.text(text || self.option('label'));
+    if (text) {
+      self.input.text(text);
+    } else {
+      self.input.text(self.option('label'))
+        .addClass('is-label');
+    }
 
     // 回填
     self.field.val(value);
@@ -254,7 +258,9 @@ var Select = Widget.extend({
     self.role('select')
         .removeClass('focus input-active dropdown-active');
 
-    if (!self.option('multiple') && self.option('label')) {
+    if (!self.option('multiple') &&
+        self.text &&
+        self.option('label')) {
       self.input.text(self.text)
           .removeClass('is-label');
     }
@@ -282,7 +288,7 @@ var Select = Widget.extend({
         .siblings('.selected').removeClass('selected');
 
     self.field.val(value);
-    self.input.text(text);
+    self.input.text(text).removeClass('is-label');
 
     if (origValue !== value) {
       self.fire('change', item);

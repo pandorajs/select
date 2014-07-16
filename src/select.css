@@ -2,8 +2,8 @@
   position: relative;
   display: inline-block;
 }
-.ue-select .dropdown,
-.ue-select .input {
+.ue-select .input,
+.ue-select .dropdown {
   background: #ffffff;
   font-family: inherit;
   font-size: 13px;
@@ -12,14 +12,21 @@
   color: #303030;
   cursor: pointer;
 }
-.ue-select .dropdown span,
-.ue-select .input span {
-  display: inline-block;
-}
 .ue-select .is-label {
   color: #999;
 }
 .ue-select .input {
+  border-color: #ccc;
+  background-color: #f9f9f9;
+  background-image: -moz-linear-gradient(top, #fefefe, #f2f2f2);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fefefe), to(#f2f2f2));
+  background-image: -webkit-linear-gradient(top, #fefefe, #f2f2f2);
+  background-image: -o-linear-gradient(top, #fefefe, #f2f2f2);
+  background-image: linear-gradient(to bottom, #fefefe, #f2f2f2);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffefefe', endColorstr='#fff2f2f2', GradientType=0);
+  -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   vertical-align: middle;
   position: relative;
   z-index: 1;
@@ -31,8 +38,6 @@
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -42,16 +47,24 @@
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .ue-select .input::after {
-  display: block;
-  clear: left;
   content: ' ';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: block;
+  width: 0;
+  height: 0;
+  margin-top: -3px;
+  border-color: #808080 transparent transparent transparent;
+  border-style: solid;
+  border-width: 5px 5px 0 5px;
 }
 .ue-select .dropdown {
   position: absolute;
   z-index: 10;
   margin: -1px 0 0 0;
   background: #ffffff;
-  border: 1px solid #d0d0d0;
+  border: 1px solid #ccc;
   border-top: 0 none;
   -webkit-border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
@@ -66,7 +79,11 @@
   display: block;
   overflow: hidden;
   cursor: pointer;
+  margin: 0;
   padding: 5px 8px;
+  font-weight: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ue-select .dropdown .active {
   color: #495c68;
@@ -77,6 +94,7 @@
   background-color: #1b9dec;
 }
 .ue-select .dropdown-active {
+  background: #fff;
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
@@ -91,54 +109,31 @@
   background: #f0f0f0;
   content: ' ';
 }
+.ue-select .dropdown-active::after {
+  margin-top: -4px;
+  border-color: transparent transparent #808080 transparent;
+  border-width: 0 5px 5px 5px;
+}
 .ue-select .dropdown-content {
   max-height: 200px;
   overflow-x: hidden;
   overflow-y: auto;
 }
-.ue-select .checkbox {
-  margin-right: 2px;
-}
-.ue-select-single .input {
-  border-color: #ccc;
-  background-color: #f9f9f9;
-  background-image: -moz-linear-gradient(top, #fefefe, #f2f2f2);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fefefe), to(#f2f2f2));
-  background-image: -webkit-linear-gradient(top, #fefefe, #f2f2f2);
-  background-image: -o-linear-gradient(top, #fefefe, #f2f2f2);
-  background-image: linear-gradient(to bottom, #fefefe, #f2f2f2);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffefefe', endColorstr='#fff2f2f2', GradientType=0);
-  -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-.ue-select-single .input:after {
-  position: absolute;
-  top: 50%;
-  right: 10px;
+.ue-select-single .input span {
   display: block;
-  width: 0;
-  height: 0;
-  margin-top: -3px;
-  border-color: #808080 transparent transparent transparent;
-  border-style: solid;
-  border-width: 5px 5px 0 5px;
-  content: ' ';
-}
-.ue-select-single .input-active {
-  display: inline-block;
-  background: #ffffff;
-}
-.ue-select-single .dropdown {
-  border-color: #ccc;
-}
-.ue-select-single .dropdown-active:after {
-  margin-top: -4px;
-  border-color: transparent transparent #808080 transparent;
-  border-width: 0 5px 5px 5px;
+  float: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ue-select-multiple .has-items {
-  padding: 5px 30px 2px 8px;
+  background: #fff;
+  padding: 4px 30px 1px 8px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.ue-select-multiple .input span {
+  display: inline-block;
 }
 .ue-select-multiple .input .item {
   display: -moz-inline-stack;
@@ -152,13 +147,6 @@
   cursor: pointer;
   background: #1da7ee;
   border: 1px solid #0073bb;
-}
-.ue-select-multiple .input .item.active {
-  color: #ffffff;
-  background: #92c836;
-  border: 1px solid #00578d;
-}
-.ue-select-multiple .input [data-value] {
   text-shadow: 0 1px 0 rgba(0, 51, 83, 0.3);
   background-color: #1b9dec;
   background-image: -moz-linear-gradient(top, #1da7ee, #178ee9);
@@ -174,7 +162,10 @@
   -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.03);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 1px rgba(255, 255, 255, 0.03);
 }
-.ue-select-multiple .input [data-value].active {
+.ue-select-multiple .input .item.active {
+  color: #ffffff;
+  background: #92c836;
+  border: 1px solid #00578d;
   background-color: #0085d4;
   background-image: -moz-linear-gradient(top, #008fd8, #0075cf);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#008fd8), to(#0075cf));
@@ -183,4 +174,13 @@
   background-image: linear-gradient(to bottom, #008fd8, #0075cf);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff008fd8', endColorstr='#ff0075cf', GradientType=0);
+}
+.ue-select-multiple .dropdown input {
+  margin-top: 2px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.ue-select-multiple .dropdown span {
+  display: inline-block;
+  vertical-align: middle;
 }

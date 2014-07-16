@@ -1,11 +1,29 @@
-<div class="input" data-role="select">
-  <span data-role="selected"></span>
+<div class="input {{#if hasSelected}}has-items{{else}}is-label{{/if}}" data-role="select">
+  <span data-role="selected" style="min-width:{{minWidth}};max-width:{{maxWidth}};width:{{width}}">
+    {{#if hasSelected}}
+      {{#if multiple}}
+        {{#each select}}
+          {{#if selected}}
+            <div class="item" data-value="{{value}}">{{{text}}}</div>
+          {{/if}}
+        {{/each}}
+      {{else}}
+        {{#each select}}
+          {{#if selected}}
+            {{{text}}}
+          {{/if}}
+        {{/each}}
+      {{/if}}
+    {{else}}
+      {{{label}}}
+    {{/if}}
+  </span>
 </div>
 <div class="dropdown" data-role="dropdown" style="display:none">
-  <div class="dropdown-content" data-role="content">
+  <div class="dropdown-content">
     {{#if multiple}}
       {{#each select}}
-        <label class="item{{#if selected}} selected{{/if}}" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
+        <label class="item" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
           <input type="checkbox" data-text="{{{text}}}" value="{{{value}}}"{{#if selected}} checked{{/if}}>
           <span>{{{text}}}</span>
         </label>

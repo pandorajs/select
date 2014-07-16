@@ -53,8 +53,8 @@ var Select = Widget.extend({
     placeholder: '',
 
     // input 或 select 元素，必填
-    field: null,
-    label: null,
+    // field: null,
+    // label: null,
 
     css: {
       // width: '200',
@@ -63,20 +63,15 @@ var Select = Widget.extend({
 
     model: [],
 
-    name: null,
-    value: null,
+    // name: null,
+    // value: null,
+
+    // minWidth: null,
+    // maxWidth: null,
 
     selectedIndex: 0,
 
     template: require('./select.handlebars'),
-
-    events: {
-      render: function() {
-        this.element.addClass(
-          this.option('classPrefix') + '-' + (this.option('multiple') ? 'multiple' : 'single')
-        );
-      }
-    },
 
     insert: function() {
       this.element.insertAfter(this.option('field')).show();
@@ -87,13 +82,12 @@ var Select = Widget.extend({
         e.stopPropagation();
       },
       'click [data-role=select]': function (e) {
-        this.input.focus();
-        this.showList();
+        this.showDropdown();
       },
       'click [data-role=item]': function (e) {
         if (e.currentTarget.tagName === 'LABEL') {
           e.stopPropagation();
-          this.check();
+          this.check($(e.currentTarget), e.target.tagName === 'INPUT');
         } else {
           this.select($(e.currentTarget));
         }
@@ -121,16 +115,20 @@ var Select = Widget.extend({
     // 存储 field 的 tagName
     self.tagName = field[0].tagName.toLowerCase();
 
-    if (!self.option('label')) {
-      self.option('label',
-          field.data('label') ||
-          self.option('placeholder') ||
-          self.field.prop('placeholder'));
-    }
+    self.data('hasSelected', !!self.option('value') || !! field.val());
 
-    self.on('render', function () {
-      this.postRender();
-    });
+    self.data('label',
+        self.option('label') ||
+        field.data('label') ||
+        self.option('placeholder') ||
+        self.field.prop('placeholder') ||
+        '请选择');
+
+    self.on('render', function() {
+        this.element.addClass(
+          this.option('classPrefix') + '-' + (this.option('multiple') ? 'multiple' : 'single')
+        );
+      });
 
     optionLoad = self.option('load');
     // 异步请求
@@ -153,71 +151,73 @@ var Select = Widget.extend({
     });
 
     self.render();
+
+    self.postRender();
   },
 
   postRender: function () {
     var self = this;
 
-    self.input = self.role('selected');
+    self.setWidth();
 
-    if (self.option('multiple')) {
-      self.initMultiple();
-    } else {
-      self.initSingle();
-    }
-
-    // 计算最长值宽度
-    self.role('selected').css('min-width',
-        (self.option('multiple') ? 20 : 0) +
-            getStringWidth(self.role('selected'), self.data('select')));
+    self.initValue();
 
     self.initDelegates({
       'mousedown': function (e) {
         if (!(self.is(e.target) ||
               self.$(e.target).length)) {
-          self.hideList();
+          self.hideDropdown();
         }
       }
     }, self.document);
   },
 
-  initSingle: function () {
+  setWidth: function () {
     var self = this,
-        data = self.data('select'),
-        i, l, value, text;
+        minWidth = self.option('minWidth'),
+        maxWidth = self.option('maxWidth'),
+        calWidth;
 
-    for (i = 0, l = data.length; i < l; i++ ) {
-      if (data[i].selected) {
-        value = data[i].value;
-        text = data[i].text;
-        break;
-      }
+    if (!minWidth) {
+      minWidth = (self.option('multiple') ? 20 : 0) +
+            getStringWidth(self.role('selected'), self.data('select'));
     }
 
-    // 存储当前值
-    self.text = text;
-    if (text) {
-      self.input.text(text);
+    // 设置宽度同时保存到data备用
+
+    if (maxWidth) {
+      if (minWidth >= maxWidth) {
+        self.role('selected')
+            .css('width', maxWidth);
+        self.data('width', maxWidth + 'px');
+      } else {
+        self.role('selected')
+            .css('min-width', minWidth)
+            .css('max-width', maxWidth);
+        self.data('minWidth', minWidth + 'px');
+        self.data('maxWidth', maxWidth + 'px');
+      }
     } else {
-      self.input.text(self.option('label'))
-        .addClass('is-label');
+      self.role('selected')
+          .css('min-width', minWidth);
+      self.data('minWidth', minWidth + 'px');
     }
 
-    // 回填
-    self.field.val(value);
-  },
+    if (minWidth >= maxWidth) {
+      self.role('selected')
+          .css('width', maxWidth);
+      self.data('width', maxWidth + 'px');
 
-  initMultiple: function (undefined) {
-    var self = this,
-        value = self.option('value') || self.field.val(),
-        v;
+      // self.$('[data-role=dropdown] [data-role=item]')
+      //     .css('width', maxWidth);
+    } else {
+      self.role('selected').css('min-width', minWidth);
+      self.data('minWidth', minWidth + 'px');
 
-    if (value) {
-      value = value.split(',');
-
-      while ((v = value.shift()) !== undefined) {
-        self.$(':checkbox[value="' + v + '"]').trigger('click');
-      }
+      // if (maxWidth) {
+      //   self.$('[data-role=dropdown] [data-role=item]')
+      //       .css('max-width', maxWidth);
+      // }
     }
   },
 
@@ -226,25 +226,26 @@ var Select = Widget.extend({
    *
    * @method show
    */
-  showList: function() {
+  showDropdown: function() {
     var self = this,
         roleSelect = self.role('select');
 
     roleSelect.addClass('focus input-active dropdown-active');
 
-    if (!self.option('multiple') && self.option('label')) {
-      self.input.text(self.option('label'))
+    if (!self.option('multiple')) {
+      self.role('selected')
+          .text(self.data('label'))
           .addClass('is-label');
     }
 
-    self.role('dropdown').css({
-      width: roleSelect.outerWidth(),
-      left: 0,
-      top: roleSelect.outerHeight(),
-      visibility: 'visible'
-    }).show();
-
-    self.option('visible', true);
+    self.role('dropdown')
+        .css({
+          width: roleSelect.outerWidth(),
+          left: 0,
+          top: roleSelect.outerHeight(),
+          visibility: 'visible'
+        })
+        .show();
   },
 
   /**
@@ -252,23 +253,19 @@ var Select = Widget.extend({
    *
    * @method hide
    */
-  hideList: function() {
+  hideDropdown: function() {
     var self = this;
 
     self.role('select')
         .removeClass('focus input-active dropdown-active');
 
-    if (!self.option('multiple') &&
-        self.text &&
-        self.option('label')) {
-      self.input.text(self.text)
+    if (!self.option('multiple') && self.text) {
+      self.role('selected').text(self.text)
           .removeClass('is-label');
     }
 
     self.role('dropdown')
         .hide();
-
-    self.option('visible', false);
   },
 
   /**
@@ -279,23 +276,23 @@ var Select = Widget.extend({
    */
   select: function (item) {
     var self = this,
-        value = item.data('value') + '',
-        origValue = self.field.val(),
-        text = item.text(),
-        index;
+        datas = self.data('select'),
+        index = +item.data('index'),
+        i, l;
 
-    item.addClass('selected')
-        .siblings('.selected').removeClass('selected');
-
-    self.field.val(value);
-    self.input.text(text).removeClass('is-label');
-
-    if (origValue !== value) {
-      self.fire('change', item);
+    if (datas[index].selected) {
+      return;
     }
 
-    self.text = text;
-    self.hideList();
+    self.text = datas[index].text;
+
+    for (i = 0, l = datas.length; i < l; i++) {
+      datas[i].selected = (i === index);
+    }
+
+    self.initValue();
+
+    self.render();
   },
 
   /**
@@ -303,33 +300,43 @@ var Select = Widget.extend({
    *
    * @method check
    */
-  check: function () {
+  check: function (item, isInput) {
     var self = this,
-        roleSelect = self.role('select'),
-        html = '',
-        values = [];
+        datas = self.data('select'),
+        index = +item.data('index'),
+        checked = item.find('input').is(':checked');
 
-    self.$(':checked').each(function () {
-      var value = this.value;
+    datas[index].selected = isInput ? checked : !checked;
 
-      html += '<div class="item" data-value="' + value + '">' +
-                $(this).data('text') +
-              '</div>';
+    self.initValue();
 
-      values.push(value);
-    });
+    self.render();
 
-    roleSelect.toggleClass('has-items', !!values.length);
+    self.showDropdown();
+  },
 
-    self.field.val(values.join(self.option('delimiter')));
+  /**
+   * 回填 value
+   *
+   * @method initValue
+   */
+  initValue: function () {
+    var self = this,
+        datas = self.data('select'),
+        i, l, values = [], hasSelected = false;
 
-    self.role('selected').html(values.length ? html : self.option('label'));
+    for (i = 0, l = datas.length; i < l; i++) {
+      if (datas[i].selected) {
+        values.push(datas[i].value);
+        hasSelected = true;
+      }
+    }
 
-    // 重新设定下拉位置
-    self.role('dropdown').css({
-      width: roleSelect.outerWidth(),
-      top: roleSelect.outerHeight()
-    });
+    self.field.val((self.value = values.join(self.option('delimiter'))));
+
+    self.data('hasSelected', hasSelected);
+
+    self.fire('change');
   },
 
   /**
@@ -377,6 +384,7 @@ var Select = Widget.extend({
       }
     }
   }
+
 });
 
 module.exports = Select;

@@ -274,8 +274,8 @@
             {value:'2', text:'绿色模板'}
         ],
         events: {
-            change: function(e, target) {
-                console.log(target.data('value'))
+            change: function(e) {
+                console.log(this)
             }
         }
     });
@@ -310,7 +310,7 @@
   <p> <strong>注：多选只支持在js配置mulitple</strong> </p>
 </blockquote>
 <div class="nico-insert-code">
-  <input value="00,01" id="example4" name="theme">
+  <input value="" id="example4" name="theme">
 </div>
 <div class="highlight">
   <pre>
@@ -322,12 +322,13 @@
 <script>seajs.use(['../src/select'], function(Select) {
     new Select({
         field: '#example4',
-        //value: '2',
+        value: '01,02',
+        label: '我是label',
         multiple: true,
         load: function(callback){
             callback([
-                {value:'00', text:'蓝色模板1'},
-                {value:'01', text:'红色模板'},
+                {value:'00', text:'蓝色模板1', selected:true},
+                {value:'01', text:'红色模板', selected:true},
                 {value:'02', text:'绿色模板'}
             ])
         }
@@ -340,14 +341,15 @@
 <span class="params">(Select)</span> {</span>
     <span class="keyword">new</span> Select({
         field: <span class="string">'#example4'</span>,
-        <span class="comment">//value: '2',</span>
+        value: <span class="string">'01,02'</span>,
+        label: <span class="string">'我是label'</span>,
         multiple: <span class="literal">true</span>,
         load: <span class="function">
 <span class="keyword">function</span>
 <span class="params">(callback)</span>{</span>
             callback([
-                {value:<span class="string">'00'</span>, text:<span class="string">'蓝色模板1'</span>},
-                {value:<span class="string">'01'</span>, text:<span class="string">'红色模板'</span>},
+                {value:<span class="string">'00'</span>, text:<span class="string">'蓝色模板1'</span>, selected:<span class="literal">'true'</span>},
+                {value:<span class="string">'01'</span>, text:<span class="string">'红色模板'</span>, selected:<span class="literal">'true'</span>},
                 {value:<span class="string">'02'</span>, text:<span class="string">'绿色模板'</span>}
             ])
         }

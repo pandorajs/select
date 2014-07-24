@@ -115,34 +115,90 @@ var Select = Widget.extend({
     // 存储 field 的 tagName
     self.tagName = field[0].tagName.toLowerCase();
 
-    self.data('hasSelected', !!self.option('value') || !! field.val());
+    self.data('hasSelected', !!self.option('value') || !!field.val());
 
     self.data('label',
         self.option('label') ||
         field.data('label') ||
         self.option('placeholder') ||
-        self.field.prop('placeholder') ||
-        '请选择');
+        self.field.prop('placeholder'));
 
-    self.on('render', function() {
-        this.element.addClass(
-          this.option('classPrefix') + '-' + (this.option('multiple') ? 'multiple' : 'single')
+    self.once('render', function() {
+        self.element.addClass(
+          self.option('classPrefix') + '-' + (self.option('multiple') ? 'multiple' : 'single')
         );
+        self.initDelegates({
+          'mousedown': function (e) {
+            if (!(self.is(e.target) ||
+                  self.$(e.target).length)) {
+              self.hideDropdown();
+            }
+          }
+        }, self.document);
       });
 
     optionLoad = self.option('load');
+
     // 异步请求
     if (optionLoad) {
       optionLoad.call(self, function (data) {
-        self.setDataAndRender(data);
+        self.setDataSelect(data);
       });
     } else {
       self.initAttrs();
-      self.setDataAndRender(self.option('model'));
+      self.setDataSelect(self.option('model'));
     }
   },
 
-  setDataAndRender: function (data) {
+  /**
+   * 显示之前初始属性值
+   *
+   * @method initAttrs
+   * @return {[type]} [description]
+   */
+  initAttrs: function() {
+    var self = this,
+        selectName,
+        selectElem,
+        field = self.field,
+        tagName = self.tagName,
+        model = self.option('model'),
+        value = self.option('value') || field.val();
+
+    if (tagName === 'select') {
+      // option 设置 model 优先级高
+      if (model && model.length) {
+        self.data('select', completeModel(model, value));
+      } else {
+        self.data('select', convertSelect(field[0], value));
+      }
+    } else {
+      if (!model || !model.length) {
+        throw new Error('option model invalid');
+      }
+
+      // trigger 如果为其他 DOM，则由用户提供 model
+      self.data('select', completeModel(model, value));
+
+      // 如果 name 存在则创建隐藏域
+      selectName = self.option('name');
+
+      if (selectName) {
+        selectElem = $('[name="' + selectName + '"]', self.viewport);
+        if (selectElem.length === 0) {
+          selectElem = $(
+            '<input type="hidden" name="' + selectName + '" />', self.viewport
+          ).css({
+            position: 'absolute',
+            zIndex: -1
+          }).insertAfter(field);
+        }
+        self.field = selectElem;
+      }
+    }
+  },
+
+  setDataSelect: function (data) {
     var self = this;
 
     self.data({
@@ -151,25 +207,48 @@ var Select = Widget.extend({
     });
 
     self.render();
-
-    self.postRender();
   },
 
-  postRender: function () {
-    var self = this;
+  render: function () {
+    this.initValue();
+    Select.superclass.render.apply(this);
+    this.setWidth();
+  },
 
-    self.setWidth();
+  /**
+   * 回填 value
+   *
+   * @method initValue
+   */
+  initValue: function () {
+    var self = this,
+        datas = self.data('select'),
+        i, l, values = [],
+        newValue,
+        hasSelected = false;
 
-    self.initValue();
-
-    self.initDelegates({
-      'mousedown': function (e) {
-        if (!(self.is(e.target) ||
-              self.$(e.target).length)) {
-          self.hideDropdown();
-        }
+    for (i = 0, l = datas.length; i < l; i++) {
+      if (datas[i].selected) {
+        self.text = datas[i].text;
+        values.push(datas[i].value);
+        hasSelected = true;
       }
-    }, self.document);
+    }
+
+    newValue = values.join(self.option('delimiter'));
+
+    self.data('hasSelected', hasSelected);
+
+    if (typeof self.value === 'undefined') {
+      self.value = self.field.val();
+    }
+
+    self.field.val(newValue);
+
+    if (self.value !== newValue) {
+      self.value = newValue;
+      self.fire('change');
+    }
   },
 
   setWidth: function () {
@@ -202,23 +281,6 @@ var Select = Widget.extend({
           .css('min-width', minWidth);
       self.data('minWidth', minWidth + 'px');
     }
-
-    if (minWidth >= maxWidth) {
-      self.role('selected')
-          .css('width', maxWidth);
-      self.data('width', maxWidth + 'px');
-
-      // self.$('[data-role=dropdown] [data-role=item]')
-      //     .css('width', maxWidth);
-    } else {
-      self.role('selected').css('min-width', minWidth);
-      self.data('minWidth', minWidth + 'px');
-
-      // if (maxWidth) {
-      //   self.$('[data-role=dropdown] [data-role=item]')
-      //       .css('max-width', maxWidth);
-      // }
-    }
   },
 
   /**
@@ -234,8 +296,8 @@ var Select = Widget.extend({
 
     if (!self.option('multiple')) {
       self.role('selected')
-          .text(self.data('label'))
-          .addClass('is-label');
+          .addClass('is-label')
+          .text(self.data('label') || undefined);
     }
 
     self.role('dropdown')
@@ -256,12 +318,17 @@ var Select = Widget.extend({
   hideDropdown: function() {
     var self = this;
 
+    if (self.role('dropdown').is(':hidden')) {
+      return;
+    }
+
     self.role('select')
         .removeClass('focus input-active dropdown-active');
 
-    if (!self.option('multiple') && self.text) {
-      self.role('selected').text(self.text)
-          .removeClass('is-label');
+    if (!self.option('multiple')) {
+      self.role('selected')
+          .removeClass('is-label')
+          .text(self.text || undefined);
     }
 
     self.role('dropdown')
@@ -281,6 +348,11 @@ var Select = Widget.extend({
         i, l;
 
     if (datas[index].selected) {
+      self.hideDropdown();
+      return;
+    }
+
+    if (datas[index].disabled) {
       return;
     }
 
@@ -289,8 +361,6 @@ var Select = Widget.extend({
     for (i = 0, l = datas.length; i < l; i++) {
       datas[i].selected = (i === index);
     }
-
-    self.initValue();
 
     self.render();
   },
@@ -304,85 +374,19 @@ var Select = Widget.extend({
     var self = this,
         datas = self.data('select'),
         index = +item.data('index'),
-        checked = item.find('input').is(':checked');
+        checked;
+
+    if (datas[index].disabled) {
+      return;
+    }
+
+    checked = item.find('input').is(':checked');
 
     datas[index].selected = isInput ? checked : !checked;
-
-    self.initValue();
 
     self.render();
 
     self.showDropdown();
-  },
-
-  /**
-   * 回填 value
-   *
-   * @method initValue
-   */
-  initValue: function () {
-    var self = this,
-        datas = self.data('select'),
-        i, l, values = [], hasSelected = false;
-
-    for (i = 0, l = datas.length; i < l; i++) {
-      if (datas[i].selected) {
-        values.push(datas[i].value);
-        hasSelected = true;
-      }
-    }
-
-    self.field.val((self.value = values.join(self.option('delimiter'))));
-
-    self.data('hasSelected', hasSelected);
-
-    self.fire('change');
-  },
-
-  /**
-   * 显示之前初始属性值
-   *
-   * @method initAttrs
-   * @return {[type]} [description]
-   */
-  initAttrs: function() {
-    var self = this,
-        selectName,
-        field = self.field,
-        tagName = self.tagName,
-        model = self.option('model'),
-        value = self.option('value') || self.field.val();
-
-    if (tagName === 'select') {
-      // option 设置 model 优先级高
-      if (model && model.length) {
-        self.data('select', completeModel(model, value));
-      } else {
-        self.data('select', convertSelect(field[0], value));
-      }
-    } else {
-      if (!model || !model.length) {
-        throw new Error('option model invalid');
-      }
-
-      // trigger 如果为其他 DOM，则由用户提供 model
-      self.data('select', completeModel(model, value));
-
-      // 如果 name 存在则创建隐藏域
-      selectName = self.option('name');
-
-      if (selectName) {
-        if ($('input[name="' + selectName + '"]').length === 0) {
-          $(
-            '<input type="text" name="' + selectName + '" />'
-          ).css({
-            position: 'absolute',
-            left: '-99999px',
-            zIndex: -100
-          }).insertAfter(field);
-        }
-      }
-    }
   }
 
 });
@@ -433,42 +437,26 @@ function convertSelect (select, value) {
 
 // 补全 model 对象
 function completeModel (model, value) {
-  var i, j, l, ll, o,
-      newModel = [],
-      selectedIndexes = [],
-      selected;
+  var i, l,
+      selected,
+      selectedFound = false;
 
   for (i = 0, l = model.length; i < l; i++) {
-    o = $.extend({}, model[i]);
 
     if (value !== null) {
-      selected = (value === o.value);
-    } else {
-      selected = o.selected;
+      model[i].selected = (value === model[i].value);
     }
 
-    if (selected) {
-      selectedIndexes.push(i);
+    if (model[i].selected) {
+      selectedFound = true;
     }
-
-    o.selected = !!selected;
-
-    newModel.push(o);
   }
 
-  if (selectedIndexes.length) {
-    // 如果有多个 selected 则选中最后一个
-    selectedIndexes.pop();
-
-    while ((j = selectedIndexes.shift()) >= 0) {
-      newModel[j].selected = false;
-    }
-  } else {
-    //当所有都没有设置 selected 则默认设置第一个
-    newModel[0].selected = true;
+  if (!selectedFound && model.length) {
+    model[0].selected = true;
   }
 
-  return newModel;
+  return model;
 }
 
 function getStringWidth (sibling, data) {

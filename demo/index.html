@@ -28,7 +28,7 @@
 <div class="nico-insert-code">
   <select id="example10">
     <option value="0">蓝色多多多多多多</option>
-    <option value="1">红色</option>
+    <option value="1" selected disabled>红色</option>
     <option value="2">绿色</option>
   </select>
 </div>
@@ -229,7 +229,7 @@
         name: 'template',
         model: [
             {value:'0', text:'蓝色模板'},
-            {value:'1', text:'红色模板'},
+            {value:'1', text:'红色模板', disabled: true},
             {value:'2', text:'绿色模板'}
         ]
     });
@@ -275,7 +275,7 @@
         ],
         events: {
             change: function(e) {
-                console.log(this)
+                // console.log(this)
             }
         }
     });
@@ -329,7 +329,7 @@
             callback([
                 {value:'00', text:'蓝色模板1', selected:true},
                 {value:'01', text:'红色模板', selected:true},
-                {value:'02', text:'绿色模板'}
+                {value:'02', text:'绿色模板', disabled:true}
             ])
         }
     });

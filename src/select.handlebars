@@ -23,14 +23,14 @@
   <div class="dropdown-content">
     {{#if multiple}}
       {{#each select}}
-        <label title="{{text}}" class="item" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
-          <input type="checkbox" data-text="{{{text}}}" value="{{{value}}}"{{#if selected}} checked{{/if}}>
+        <label title="{{text}}" class="item{{#if selected}} selected{{/if}}{{#if disabled}} disabled{{/if}}" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">
+          <input type="checkbox" data-text="{{{text}}}" value="{{{value}}}"{{#if selected}} checked{{/if}}{{#if disabled}} disabled{{/if}}>
           <span>{{{text}}}</span>
         </label>
       {{/each}}
     {{else}}
       {{#each select}}
-        <div title="{{text}}" class="item{{#if selected}} selected{{/if}}" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">{{{text}}}</div>
+        <div title="{{text}}" class="item{{#if selected}} selected{{/if}}{{#if disabled}} disabled{{/if}}" data-index="{{@index}}" data-role="item" data-value="{{{value}}}">{{{text}}}</div>
       {{/each}}
     {{/if}}
   </div>

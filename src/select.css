@@ -89,9 +89,9 @@
   color: #495c68;
   background-color: #f5fafd;
 }
-.ue-select .dropdown .selected {
-  color: #fff;
-  background-color: #1b9dec;
+.ue-select .dropdown .disabled {
+  color: #999;
+  cursor: default;
 }
 .ue-select .dropdown-active {
   background: #fff;

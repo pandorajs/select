@@ -73,7 +73,7 @@ seajs.use(['select'], function(Select) {
         ],
         events: {
             change: function(e, target) {
-                console.log(target.data('value'))
+                console.log(e)
             }
         }
     });

@@ -72,6 +72,12 @@ var Select = Widget.extend({
     selectedIndex: 0,
 
     template: require('./select.handlebars'),
+    templateOptions: {
+      partials: {
+        singleItem: require('./select-single-item.handlebars'),
+        multiItem: require('./select-multi-item.handlebars')
+      }
+    },
 
     insert: function() {
       this.element.insertAfter(this.option('field')).show();

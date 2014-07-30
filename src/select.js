@@ -127,7 +127,7 @@ var Select = Widget.extend({
         self.option('label') ||
         field.data('label') ||
         self.option('placeholder') ||
-        self.field.prop('placeholder'));
+        field.attr('placeholder'));
 
     self.once('render', function() {
         self.element.addClass(

@@ -172,7 +172,7 @@ define(function(require, exports, module) {
         field = self.field,
         tagName = self.tagName,
         model = self.option('model'),
-        value = self.option('value') || field.val();
+        value = self.option('value') || field.attr('value');
 
       if (tagName === 'select') {
         // option 设置 model 优先级高

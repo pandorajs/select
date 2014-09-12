@@ -159,6 +159,12 @@ define(function(require, exports, module) {
       }
     },
 
+    setValue: function(value) {
+      this.role('item')
+        .filter('[data-value="' + value + '"]')
+        .trigger('click');
+    },
+
     /**
      * 初始化属性值
      *
@@ -269,6 +275,7 @@ define(function(require, exports, module) {
 
       if (self.value !== newValue) {
         self.value = newValue;
+        self.field.change();
         self.fire('change');
       }
     },

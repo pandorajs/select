@@ -48,8 +48,9 @@
     "output": [ "select.js" ],
     "alias": {
       "$": "$",
-      "widget": "pandora/widget/1.0.0/widget",
-      "handlebars": "gallery/handlebars/1.3.0/handlebars-runtime"
+      "handlebars": "gallery/handlebars/1.3.0/handlebars-runtime",
+      "importstyle": "pandora/importstyle/1.0.0/importstyle",
+      "widget": "pandora/widget/1.0.0/widget"
     }
   }
 }

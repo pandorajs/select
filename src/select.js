@@ -25,7 +25,17 @@ define(function(require, exports, module) {
    * });
    */
   var $ = require('$'),
+    Sifter = require('./sifter'),
+    itemsTemplate = require('./select-items.handlebars'),
     Widget = require('widget');
+
+  var KEY_MAP = {
+    BACKSPACE: 8,
+    ENTER: 13,
+    UP: 38,
+    DOWN: 40
+  };
+  var SELECTED = 'selected';
 
   /**
    * 模拟 select 组件
@@ -53,7 +63,16 @@ define(function(require, exports, module) {
       // 分隔符，多选时才有用
       delimiter: ',',
 
-      placeholder: '',
+      placeholder: '请选择',
+
+      search: false,
+
+      sifterOptions: {
+        fields: ['text'],
+        placeholder: '请输入',
+        emptyTemplate: '无匹配项',
+        limit: 1000
+      },
 
       // input 或 select 元素，必填
       // field: null,
@@ -91,8 +110,14 @@ define(function(require, exports, module) {
           e.stopPropagation();
         },
         'click [data-role=select]': function(e) {
-          this.showDropdown();
+          if (this.showSelect) {
+            this.hideDropdown();
+          } else {
+            this.showDropdown();
+            this.role('placeholder').focus();
+          }
         },
+        'keyup [data-role=placeholder]': 'onKey',
         'click [data-role=item]': function(e) {
           if (e.currentTarget.tagName === 'LABEL') {
             e.stopPropagation();
@@ -110,16 +135,151 @@ define(function(require, exports, module) {
       }
     },
 
+    // sifter 查询
+    search: function() {
+      if (this.disableKey) {
+        return false;
+      }
+      var self = this;
+      var result = self.sifter.search($.trim(self.searchInput.val()), self.option('sifterOptions'));
+      var items = result.items;
+      var data = [];
+
+      // 按原始数据顺序排序
+      items.sort(function(obj1, obj2){
+        var v1 = obj1.id;
+        var v2 = obj2.id;
+
+        if (v1 < v2) {
+          return -1;
+        } else if (v1 > v2) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      $.each(items, function(i, n) {
+        var item = self.sifter.items[n.id];
+        var reg = new RegExp(result.query, 'ig');
+
+        item.item =  item.text.replace(reg, function(query) {
+          return '<span class="highlight">' + query + '</span>';
+        });
+        data.push(item);
+      });
+      self.renderDropdown(data);
+    },
+
+    // 按了后退键
+    keyBack: function() {
+      this.disableKey = false;
+      this.search();
+      if (this.searchInput.val() === '') {
+        this.showPlaceholder();
+      }
+
+    },
+
+    // 显示 sifter 输入框
+    showPlaceholder: function() {
+      var self = this;
+      var width = parseInt(self.data('minWidth'), 10) - 2;
+
+      self.maxLength || (self.maxLength = getMaxLength(self.data('select')));
+      self.role('single-text').hide();
+      self.activeInput = true;
+      self.clearValue();
+      self.searchInput.css('width', width)
+        .attr('maxlength', self.maxLength)
+        .attr('placeholder', self.option('sifterOptions/placeholder'));
+    },
+
+    // 按了 enter 键
+    keyEnter: function(e) {
+      this.role('item').each(function() {
+        if ($(this).hasClass(SELECTED)) {
+          $(this).trigger('click');
+          return false;
+        }
+      });
+    },
+
+    // 按了向上键
+    keyUp: function() {
+      var index;
+      var $item = this.role('item');
+
+      $item.each(function(i) {
+        if ($(this).hasClass(SELECTED) && i > 0) {
+          index = i - 1;
+          $(this).removeClass(SELECTED);
+          return false;
+        }
+      });
+      $item.eq(index).addClass(SELECTED);
+    },
+
+    // 按了向下键
+    keyDown: function() {
+      var index;
+      var $item = this.role('item');
+
+      $item.each(function(i) {
+        if ($(this).hasClass(SELECTED) && i < $item.length - 1) {
+          index = i + 1;
+          $(this).removeClass(SELECTED);
+          return false;
+        }
+      });
+      $item.eq(index).addClass(SELECTED);
+    },
+
+    onKey: function(e) {
+      if (!this.option('search')) {
+        return;
+      }
+      switch (e.keyCode) {
+        case KEY_MAP.BACKSPACE:
+          this.keyBack();
+          break;
+        case KEY_MAP.ENTER:
+          this.keyEnter();
+          break;
+        case KEY_MAP.UP:
+          this.keyUp();
+          break;
+        case KEY_MAP.DOWN:
+          this.keyDown();
+          break;
+        default:
+          this.search();
+          break;
+      }
+
+    },
+
+    // 根据搜索内容显示下拉
+    renderDropdown: function(data) {
+      this.$('.dropdown-content').html(itemsTemplate({
+        items: data,
+        emptyTemplate: this.option('sifterOptions/emptyTemplate')
+      }));
+    },
+
     setup: function() {
       var self = this,
         field = self.option('field'),
         optionLoad;
 
       if (!field) {
-        throw new Error('请设置 field');
+        throw new Error('field is invalid');
       }
 
       field = self.field = $(field).hide();
+
+      if (this.option('search')) {
+        this.option('placeholder', '');
+      }
 
       // 存储 field 的 tagName
       self.tagName = field[0].tagName.toLowerCase();
@@ -144,6 +304,7 @@ define(function(require, exports, module) {
             }
           }
         }, self.document);
+
       });
 
       optionLoad = self.option('load');
@@ -163,6 +324,26 @@ define(function(require, exports, module) {
       this.role('item')
         .filter('[data-value="' + value + '"]')
         .trigger('click');
+    },
+
+    setPlaceholder: function() {
+      var attrs;
+      if (this.showSelect) {
+        attrs = {
+          width: '4px',
+          opacity: 1,
+          position: 'relative',
+          left: 0
+        };
+      } else {
+        attrs = {
+          width: '4px',
+          opacity: 0,
+          position: 'absolute',
+          left: '-10000px'
+        };
+      }
+      !this.activeInput && this.searchInput.css(attrs);
     },
 
     /**
@@ -186,6 +367,7 @@ define(function(require, exports, module) {
           self.data('select', completeModel(model, value));
         } else {
           self.data('select', convertSelect(field[0], value));
+          self.option('model', convertSelect(field[0], value));
         }
       } else {
         if (!model || !model.length) {
@@ -225,9 +407,11 @@ define(function(require, exports, module) {
 
       self.data({
         select: data,
+        search: self.option('search'),
         multiple: self.option('multiple')
       });
 
+      self.sifter = new Sifter(data);
       self.render();
     },
 
@@ -240,6 +424,24 @@ define(function(require, exports, module) {
       this.initValue();
       Select.superclass.render.apply(this);
       this.setWidth();
+      if (this.option('search')) {
+        this.searchInput = this.role('placeholder');
+        this.setPlaceholder();
+        this.bindKeyEvents();
+      }
+    },
+
+    bindKeyEvents: function() {
+      var self = this;
+
+      self.searchInput.off('keydown').on('keydown', function(e) {
+        if (self.field.val()) {
+          // 禁止输入
+          self.disableKey = true;
+          return false;
+        }
+      });
+
     },
 
     /**
@@ -278,6 +480,22 @@ define(function(require, exports, module) {
         self.field.change();
         self.fire('change');
       }
+    },
+
+    /**
+     * 清空值
+     */
+    clearValue: function() {
+      var self = this,
+        data = self.data('select'),
+        i, l;
+
+      for (i = 0, l = data.length; i < l; i++) {
+        data[i].selected = false;
+      }
+      self.data('hasSelected', false);
+      self.field.val('');
+      self.searchInput.val('');
     },
 
     /**
@@ -331,9 +549,8 @@ define(function(require, exports, module) {
       roleSelect.addClass('focus input-active dropdown-active');
 
       if (!self.option('multiple')) {
-        self.role('selected')
-          .addClass('is-label')
-          .text(self.data('label') || undefined);
+        self.role('selected').addClass('is-label');
+        self.role('single-text').text(self.data('label') || undefined);
       }
 
       self.role('dropdown')
@@ -344,6 +561,12 @@ define(function(require, exports, module) {
           visibility: 'visible'
         })
         .show();
+
+      self.showSelect = true;
+      if (self.option('search')) {
+        self.setPlaceholder();
+        !self.field.val() && self.renderDropdown(self.data('select'));
+      }
     },
 
     /**
@@ -363,13 +586,18 @@ define(function(require, exports, module) {
         .removeClass('focus input-active dropdown-active');
 
       if (!self.option('multiple')) {
-        self.role('selected')
-          .removeClass('is-label')
-          .text(self.text || undefined);
+        self.role('selected').removeClass('is-label');
+        self.role('single-text').text(self.text || undefined);
+        self.activeInput ? self.role('select').addClass('input-active') : self.role('single-text').show();
       }
 
       self.role('dropdown')
         .hide();
+      self.showSelect = false;
+      if (self.option('search')) {
+        self.setPlaceholder();
+        !self.field.val() && self.showPlaceholder();
+      }
     },
 
     /**
@@ -399,7 +627,8 @@ define(function(require, exports, module) {
       for (i = 0, l = datas.length; i < l; i++) {
         datas[i].selected = (i === index);
       }
-
+      self.activeInput = false;
+      self.showSelect = false;
       self.render();
     },
 
@@ -496,6 +725,20 @@ define(function(require, exports, module) {
     }
 
     return model;
+  }
+
+  function getMaxLength(data) {
+    var i, l, m = 0,
+      n, text;
+
+    for (i = 0, l = data.length; i < l; i++) {
+      text = data[i].text;
+      n = text.replace(/[^\x00-\xff]/g, 'xx').length;
+      if (n > m) {
+        m = n;
+      }
+    }
+    return n;
   }
 
   function getStringWidth(sibling, data) {

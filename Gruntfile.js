@@ -22,7 +22,7 @@ module.exports = function(grunt) {
     sea: 'sea-modules/<%= idleading %>',
 
     jshint: {
-      files: ['src/*.js'],
+      files: ['src/*.js','!src/sifter.js'],
       options: {
         jshintrc: true
       }
@@ -51,6 +51,13 @@ module.exports = function(grunt) {
       }
     },
 
+    karma: {
+      unit: {
+        configFile: 'karma.conf.js',
+        autoWatch: true
+      }
+    },
+
     yuidoc: {
       compile: {
         name: '<%= pkg.name %>',
@@ -60,6 +67,32 @@ module.exports = function(grunt) {
           paths: 'src',
           outdir: 'doc'
         }
+      }
+    },
+
+    less: {
+      select: {
+        files: {
+          'src/select.css': 'src/select.less'
+        }
+      }
+    },
+
+    spawn: {
+      docWatch: {
+        command: 'spm',
+        commandArgs: ['doc','watch']
+      },
+      docBuild: {
+        command: 'spm',
+        commandArgs: ['doc','build']
+      }
+    },
+
+    watch: {
+      less: {
+        files: ['src/*.less'],
+        tasks: ['less']
       }
     },
 
@@ -107,6 +140,19 @@ module.exports = function(grunt) {
           src: ['**'],
           dest: '<%= sea %>'
         }]
+      },
+
+      sifter: {
+        src: 'vendor/sifter/sifter.js',
+        dest: 'src/sifter.js',
+        options: {
+          process: function (content, srcpath) {
+            var ret = 'define(function(require, exports, module){\n';
+            ret += content;
+            ret += '\n});';
+            return ret;
+          }
+        }
       }
     },
 
@@ -167,13 +213,15 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask('build', ['clean:dist', 'transport', 'concat', 'clean:build', 'uglify']);
+  grunt.registerTask('build', ['clean:dist','jshint', 'transport', 'concat', 'clean:build', 'uglify','spawn:docBuild']);
 
   grunt.registerTask('demo', ['clean:sea', 'copy:sea']);
 
   grunt.registerTask('doc', ['clean:doc', 'yuidoc', 'clean:pages', 'copy:doc']);
 
   grunt.registerTask('test', ['jshint', 'qunit']);
+
+  grunt.registerTask('serve', ['watch', 'spawn']);
 
   grunt.registerTask('default', ['test', 'doc', 'build', 'demo']);
 

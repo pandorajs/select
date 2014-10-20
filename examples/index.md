@@ -14,8 +14,8 @@ trigger 为 select，并默认选中 option2
 
 ````html
 <select id="example1">
-    <option value="0">蓝色多多多多多多</option>
-    <option value="1">红色</option>
+    <option value="0">Anna</option>
+    <option value="1">na na</option>
     <option value="2">绿色</option>
 </select>
 ````
@@ -23,6 +23,7 @@ trigger 为 select，并默认选中 option2
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
+        //search: true,
         field: '#example1',
         value: '1'
     });
@@ -42,12 +43,13 @@ trigger 为任意 DOM，但必须传入 model 数据
 seajs.use(['select'], function(Select) {
     new Select({
         field: '#example2',
+        search: true,
         //multiple: true,
         name: 'template',
         model: [
-            {value:'0', text:'蓝色模板'},
-            {value:'1', text:'红色模板'},
-            {value:'2', text:'绿色模板'}
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
         ]
     });
 });
@@ -87,7 +89,7 @@ trigger 为 input, 如有设置value值，能过js配置的优先级高， 同�
 > **注：多选只支持在js配置mulitple**
 
 ````html
-<input value="00,01" id="example4" name="theme">
+<input id="example4" name="theme">
 ````
 
 ````javascript
@@ -97,11 +99,13 @@ seajs.use(['select'], function(Select) {
         //value: '2',
         multiple: true,
         load: function(callback){
-            callback([
-                {value:'00', text:'蓝色模板1'},
-                {value:'01', text:'红色模板'},
-                {value:'02', text:'绿色模板'}
-            ])
+            setTimeout(function() {
+              callback([
+                {value:'0', text:'blue template'},
+                {value:'1', text:'red template'},
+                {value:'2', text:'green template'}
+              ]);
+            }, 0);
         }
     });
 });

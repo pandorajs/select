@@ -24,6 +24,7 @@ trigger 为 select，并默认选中 option2
 seajs.use(['select'], function(Select) {
     new Select({
         //search: true,
+
         field: '#example1',
         value: '1'
     });
@@ -44,8 +45,10 @@ seajs.use(['select'], function(Select) {
     new Select({
         field: '#example2',
         search: true,
+        placeholder: '风格',
         //multiple: true,
         name: 'template',
+        hasOptionAll: true,
         model: [
             {value:'0', text:'blue template'},
             {value:'1', text:'red template'},
@@ -68,6 +71,7 @@ seajs.use(['select'], function(Select) {
     new Select({
         field: '#example3',
         //value: '2',
+        hasOptionAll: true,
         model: [
             {value:'0', text:'蓝色模板'},
             {value:'1', text:'红色模板'},

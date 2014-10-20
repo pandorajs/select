@@ -213,7 +213,7 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask('build', ['clean:dist','jshint', 'transport', 'concat', 'clean:build', 'uglify','spawn:docBuild']);
+  grunt.registerTask('build', ['clean:dist','jshint', 'transport', 'concat', 'clean:build', 'uglify']);
 
   grunt.registerTask('demo', ['clean:sea', 'copy:sea']);
 

@@ -67,6 +67,10 @@ define(function(require, exports, module) {
 
       search: false,
 
+      hasOptionAll: false,
+
+      defaultText: '全部',
+
       sifterOptions: {
         fields: ['text'],
         placeholder: '请输入',
@@ -182,6 +186,9 @@ define(function(require, exports, module) {
 
     // 显示 sifter 输入框
     showPlaceholder: function() {
+      /*if (this.text === this.option('defaultText')) {
+        return;
+      }*/
       var self = this;
       var width = parseInt(self.data('minWidth'), 10) - 2;
 
@@ -312,6 +319,12 @@ define(function(require, exports, module) {
       // 异步请求
       if (optionLoad) {
         optionLoad.call(self, function(data) {
+          if (self.option('hasOptionAll')) {
+            data.unshift({
+              value: '',
+              text: self.option('defaultText')
+            });
+          }
           self.setDataSelect(data);
         });
       } else {
@@ -361,6 +374,8 @@ define(function(require, exports, module) {
         model = self.option('model'),
         value = self.option('value') || field.attr('value') || field.val();
 
+
+
       if (tagName === 'select') {
         // option 设置 model 优先级高
         if (model && model.length) {
@@ -373,7 +388,12 @@ define(function(require, exports, module) {
         if (!model || !model.length) {
           throw new Error('option model invalid');
         }
-
+        if (self.option('hasOptionAll')) {
+          model.unshift({
+            value: '',
+            text: self.option('defaultText')
+          });
+        }
         // trigger 如果为其他 DOM，则由用户提供 model
         self.data('select', completeModel(model, value));
 
@@ -494,7 +514,8 @@ define(function(require, exports, module) {
         data[i].selected = false;
       }
       self.data('hasSelected', false);
-      self.field.val('');
+      //self.value = self.field.val();
+      self.value = null;
       self.searchInput.val('');
     },
 
@@ -511,7 +532,8 @@ define(function(require, exports, module) {
         calWidth;
 
       if (!minWidth) {
-        minWidth = (self.option('multiple') ? 20 : 0) +
+        // 6 是 search input 的最小宽度
+        minWidth = (self.option('multiple') ? 20 : 6) +
           getStringWidth(self.role('selected'), self.data('select'));
       }
 
@@ -565,7 +587,7 @@ define(function(require, exports, module) {
       self.showSelect = true;
       if (self.option('search')) {
         self.setPlaceholder();
-        !self.field.val() && self.renderDropdown(self.data('select'));
+        self.value === null && self.renderDropdown(self.data('select'));
       }
     },
 
@@ -596,7 +618,7 @@ define(function(require, exports, module) {
       self.showSelect = false;
       if (self.option('search')) {
         self.setPlaceholder();
-        !self.field.val() && self.showPlaceholder();
+        self.value === null && self.showPlaceholder();
       }
     },
 

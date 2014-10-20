@@ -200,7 +200,7 @@ define(function(require, exports, module) {
 
         select.clearValue();
         expect(select.data('select')[0].selected).to.be(false);
-        expect(select.field.val()).to.be('');
+        expect(select.value).to.be(null);
         expect(select.searchInput.val()).to.be('');
       });
 

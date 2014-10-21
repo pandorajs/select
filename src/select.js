@@ -73,7 +73,6 @@ define(function(require, exports, module) {
 
       sifterOptions: {
         fields: ['text'],
-        placeholder: '请输入',
         emptyTemplate: '无匹配项',
         limit: 1000
       },
@@ -198,7 +197,7 @@ define(function(require, exports, module) {
       self.clearValue();
       self.searchInput.css('width', width)
         .attr('maxlength', self.maxLength)
-        .attr('placeholder', self.option('sifterOptions/placeholder'));
+        .attr('placeholder', self.option('placeholder'));
     },
 
     // 按了 enter 键
@@ -284,10 +283,6 @@ define(function(require, exports, module) {
 
       field = self.field = $(field).hide();
 
-      if (this.option('search')) {
-        this.option('placeholder', '');
-      }
-
       // 存储 field 的 tagName
       self.tagName = field[0].tagName.toLowerCase();
 
@@ -319,17 +314,13 @@ define(function(require, exports, module) {
       // 异步请求
       if (optionLoad) {
         optionLoad.call(self, function(data) {
-          if (self.option('hasOptionAll')) {
-            data.unshift({
-              value: '',
-              text: self.option('defaultText')
-            });
-          }
-          self.setDataSelect(data);
+          self.option('model', data);
+          self.initAttrs();
+          self.setDataSelect();
         });
       } else {
         self.initAttrs();
-        self.setDataSelect(self.option('model'));
+        self.setDataSelect();
       }
     },
 
@@ -340,6 +331,9 @@ define(function(require, exports, module) {
     },
 
     setPlaceholder: function() {
+      if (this.activeInput) {
+        return;
+      }
       var attrs;
       if (this.showSelect) {
         attrs = {
@@ -356,7 +350,7 @@ define(function(require, exports, module) {
           left: '-10000px'
         };
       }
-      !this.activeInput && this.searchInput.css(attrs);
+      this.searchInput.css(attrs);
     },
 
     /**
@@ -372,6 +366,7 @@ define(function(require, exports, module) {
         field = self.field,
         tagName = self.tagName,
         model = self.option('model'),
+        multiple = self.option('multiple'),
         value = self.option('value') || field.attr('value') || field.val();
 
 
@@ -379,10 +374,10 @@ define(function(require, exports, module) {
       if (tagName === 'select') {
         // option 设置 model 优先级高
         if (model && model.length) {
-          self.data('select', completeModel(model, value));
+          self.data('select', completeModel(model, value, multiple));
         } else {
-          self.data('select', convertSelect(field[0], value));
-          self.option('model', convertSelect(field[0], value));
+          self.data('select', convertSelect(field[0], value, multiple));
+          self.option('model', convertSelect(field[0], value, multiple));
         }
       } else {
         if (!model || !model.length) {
@@ -395,7 +390,7 @@ define(function(require, exports, module) {
           });
         }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value));
+        self.data('select', completeModel(model, value, multiple));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -419,19 +414,20 @@ define(function(require, exports, module) {
      * 设置下拉选项数据
      *
      * @method setDataSelect
-     * @param {object} data 下拉选项
      * @private
      */
-    setDataSelect: function(data) {
+    setDataSelect: function() {
       var self = this;
-
+      var data = self.option('model');
       self.data({
         select: data,
         search: self.option('search'),
         multiple: self.option('multiple')
       });
 
-      self.sifter = new Sifter(data);
+      if (self.option('search')) {
+        self.sifter = new Sifter(data);
+      }
       self.render();
     },
 
@@ -446,6 +442,7 @@ define(function(require, exports, module) {
       this.setWidth();
       if (this.option('search')) {
         this.searchInput = this.role('placeholder');
+        this.value === null && this.showPlaceholder();
         this.setPlaceholder();
         this.bindKeyEvents();
       }
@@ -455,7 +452,7 @@ define(function(require, exports, module) {
       var self = this;
 
       self.searchInput.off('keydown').on('keydown', function(e) {
-        if (self.field.val()) {
+        if (self.value !== null) {
           // 禁止输入
           self.disableKey = true;
           return false;
@@ -572,7 +569,7 @@ define(function(require, exports, module) {
 
       if (!self.option('multiple')) {
         self.role('selected').addClass('is-label');
-        self.role('single-text').text(self.data('label') || undefined);
+        self.role('single-text').text(self.text || undefined);
       }
 
       self.role('dropdown')
@@ -683,7 +680,7 @@ define(function(require, exports, module) {
 
   module.exports = Select;
 
-  function convertSelect(select, value) {
+  function convertSelect(select, value, multiple) {
     var i, j, o, option,
       fields, field,
       model = [],
@@ -718,7 +715,7 @@ define(function(require, exports, module) {
     }
 
     // 当所有都没有设置 selected，默认设置第一个
-    if (!selectedFound && model.length) {
+    if (!selectedFound && !multiple && model.length) {
       model[0].selected = true;
     }
 
@@ -726,7 +723,7 @@ define(function(require, exports, module) {
   }
 
   // 补全 model 对象
-  function completeModel(model, value) {
+  function completeModel(model, value, multiple) {
     var i, l,
       selected,
       selectedFound = false;
@@ -742,7 +739,7 @@ define(function(require, exports, module) {
       }
     }
 
-    if (!selectedFound && model.length) {
+    if (!selectedFound && !multiple && model.length) {
       model[0].selected = true;
     }
 

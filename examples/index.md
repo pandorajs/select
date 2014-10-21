@@ -24,9 +24,8 @@ trigger 为 select，并默认选中 option2
 seajs.use(['select'], function(Select) {
     new Select({
         //search: true,
-
         field: '#example1',
-        value: '1'
+        //value: '1'
     });
 });
 ````
@@ -45,7 +44,7 @@ seajs.use(['select'], function(Select) {
     new Select({
         field: '#example2',
         search: true,
-        placeholder: '风格',
+        placeholder: '请输入...',
         //multiple: true,
         name: 'template',
         hasOptionAll: true,
@@ -102,6 +101,33 @@ seajs.use(['select'], function(Select) {
         field: '#example4',
         //value: '2',
         multiple: true,
+        load: function(callback){
+            setTimeout(function() {
+              callback([
+                {value:'0', text:'blue template'},
+                {value:'1', text:'red template'},
+                {value:'2', text:'green template'}
+              ]);
+            }, 0);
+        }
+    });
+});
+````
+
+## 异步加载数据，开启 search
+
+
+````html
+<input id="example5" name="theme">
+````
+
+````javascript
+seajs.use(['select'], function(Select) {
+    new Select({
+        field: '#example5',
+        //value: '2',
+        search: true,
+        hasOptionAll: true,
         load: function(callback){
             setTimeout(function() {
               callback([

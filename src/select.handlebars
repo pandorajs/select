@@ -15,7 +15,11 @@
         {{/each}}
       {{/if}}
     {{else}}
-      {{{label}}}
+      {{#if search}}
+        <span class="single-text" data-role="single-text"></span><input type="text" placeholder="{{label}}" data-role="placeholder" class="placeholder" autocomplete="off"/>
+      {{else}}
+        {{{label}}}
+      {{/if}}
     {{/if}}
   </div>
 </div>

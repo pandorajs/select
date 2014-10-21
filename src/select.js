@@ -426,6 +426,10 @@ define(function(require, exports, module) {
       });
 
       if (self.option('search')) {
+        var i, l;
+        for (i = 0, l = data.length; i < l; i++) {
+          data[i].index = i;
+        }
         self.sifter = new Sifter(data);
       }
       self.render();

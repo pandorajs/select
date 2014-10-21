@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <title>pandora/select - Select</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="nico 0.4.7" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link type="image/x-icon" href="./static/css/favicon.ico" rel="icon">
+    <link rel="stylesheet" href="./static/css/normalize.css" />
+    <link rel="stylesheet" href="./static/css/site.css" />
+    <link rel="stylesheet" href="./static/css/solarized.css" />
+<style>
+/* alipay iconfont */
+@font-face {
+  font-family: "rei";
+  src: url("https://i.alipayobjects.com/common/fonts/rei.eot?20130423"); /* IE9 */
+  src: url("https://i.alipayobjects.com/common/fonts/rei.eot?20130423#iefix") format("embedded-opentype"), /* IE6-IE8 */
+  url("https://i.alipayobjects.com/common/fonts/rei.woff?20130423") format("woff"), /* chrome 6+、firefox 3.6+、Safari5.1+、Opera 11+ */
+  url("https://i.alipayobjects.com/common/fonts/rei.ttf?20130423")  format("truetype"), /* chrome、firefox、opera、Safari, Android, iOS 4.2+ */
+    url("https://i.alipayobjects.com/common/fonts/rei.svg?20130423#rei") format("svg"); /* iOS 4.1- */
+}
+.iconfont {
+  font-family:"rei";
+  font-style: normal;
+  font-weight: normal;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+}
+</style>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-50206223-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    if (location.port) {
+       return;
+    }
+    ga.src = 'https://ssl.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+<script src="http://ue.17173cdn.com/a/lib/seajs-2.2.1_jquery-2.1.0.js"></script>
+<script src="http://ue.17173cdn.com/a/lib/seajs/seajs-text/1.0.2/seajs-text.js"></script>
+<script>
+  (function() {
+
+  var query = location.search.substring(1).split('&');
+  var srcdir = 'src';
+
+  if (contain(query, 'dist')) {
+    srcdir = 'dist';
+    
+  } else if (contain(query, 'cov')) {
+    srcdir = 'src-cov';
+  }
+
+  seajs.config({
+    alias: {
+      "$": 'jquery/jquery/2.1.0/jquery',
+      "$-debug": 'jquery/jquery/2.1.0/jquery-debug',
+      "jquery": 'jquery/jquery/2.1.0/jquery',
+      "jquery-debug": 'jquery/jquery/2.1.0/jquery-debug',
+      expect: "gallery/expect/0.2.0/expect",
+      puerh: "popomore/puerh/0.1.0/puerh",
+      handlebars: "gallery/handlebars/1.0.2/handlebars",
+      sinon: "gallery/sinon/1.6.0/sinon"
+    },
+    map: [function(uri) {
+      // resolve id
+      var m = uri.match(/pandora\/select\/1.1.0\/(.*)/);
+      if (m) {
+        return resolve(m[1]);
+      }
+      return uri;
+    }, function(uri) {
+      var m = uri.match(/([A-Za-z\-]+)\/[A-Za-z\-]+\/[\.0-9]+\/.+/);
+      if (m && /^alipay$/.test(m[1])) {
+        return 'http://yuan.alipay.im/assets/' + m[0];
+      }
+      return uri;
+    }],
+    comboExcludes: {test: function(uri) {
+      return uri.indexOf('http://ue.17173cdn.com/a/lib') === -1;
+    }}
+  });
+
+  function resolve(file) {
+    if (contain(query, 'debug')) {
+      if (file.indexOf('-debug') === -1) {
+        file = file.replace(/\.(\w+)$/, '-debug.$1');
+      }
+    }
+    return seajs.resolve("./" + srcdir + "/" + file + '#');
+  }
+
+  function contain(arr, value) {
+    for (var i in arr) {
+      if (arr[i] === value) {
+        return true;
+      }
+    }
+    return false;
+  }
+      seajs.config({ alias: {"handlebars":"gallery/handlebars/1.3.0/handlebars","importstyle":"pandora/importstyle/1.0.0/importstyle","widget":"pandora/widget/1.0.0/widget"}});
+    seajs.use([]);
+
+    seajs.config({alias: {
+      "$-debug": 'jquery/jquery/2.1.0/jquery-debug'
+        ,"select.css": resolve("select.css")
+        ,"select": resolve("select.js")
+        ,"sifter": resolve("sifter.js")
+    }});
+
+    // 加载依赖的 css 文件
+    var cssArray = [];
+    cssArray.push('gallery/handlebars/1.3.0/handlebars');
+    cssArray.push('pandora/importstyle/1.0.0/importstyle');
+    cssArray.push('pandora/widget/1.0.0/widget');
+    for (var i=0; i<cssArray.length; i++) {
+      if (cssArray[i].indexOf('.css') < 0) {
+        cssArray.splice(i, 1);
+      }
+    }
+    seajs.use(cssArray);
+  })();
+</script>
+    <script src="./static/js/site.js"></script>
+    <!--[if lt IE 9]>
+    <script src="./static/js/html5shiv.js"></script>
+    <![endif]-->
+    
+  </head>
+  <body class="">
+    <div id="body-wrapper">
+      <aside id="sidebar-wrapper">
+      <h1>
+          <a href="./">Select</a><sup class="package-root"><a href="/">pandora</a></sup>
+      </h1>
+        <p class="version">当前版本：<a href="">1.1.0</a></p>
+        <p class="description"></p>
+        <p class="keywords" style="display: none;">select</p>
+        <a class="source" href="git://github.com/pandorajs/select" target="_blank">View the Project</a>
+        <ul id="navigation" role="navigation">
+          <li><a href="./">文档</a></li>
+          <li><a href="examples/">演示</a></li>
+          <li><a href="history.html">历史</a></li>
+          <li><a class="issue-link" href="https://github.com/pandorajs/select/issues" target="_blank">讨论</a></li>
+        </ul>
+        
+<ul id="module-output">
+  <li class="module-multiable" title="本组件共有1个子模块">文件</li>
+    <li><a data-file="select.js" target="_blank" href="http://assets.spmjs.org/pandora/select/1.1.0/select.js">■</a></li>
+</ul>
+<div id="output-card">
+    <h3>pandora/select/1.1.0/<a target="_blank" id="output-file"></a></h3>
+    <p>这是本模块的输出文件，请复制以上 ID 进行使用。</p>
+</div>
+
+      </aside>
+      <div id="content-wrapper">
+        <div id="content">
+<article class="hentry">
+  <h1 class="entry-title">Select</h1>
+  <div class="entry-content">
+    <p><a href="https://travis-ci.org/pandorajs/select"><img src="https://secure.travis-ci.org/pandorajs/select.png" alt="Build Status"></a></p>
+<p>模拟 select 的组件.</p>
+<hr>
+<h2 id="使用方法">使用方法<a href="#使用方法" class="anchor">¶</a></h2><p>Select 继承 <a href="https://github.com/pandorajs/widget">Widget</a></p>
+<h3 id="field-为-select">field 为 select<a href="#field-为-select" class="anchor">¶</a></h3><p>html 片段</p>
+<div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"template"</span> <span class="attribute">name</span>=<span class="value">"template"</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>蓝色模板<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>红色模板<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">select</span>&gt;</span></code></pre></div><p>javascirpt 片段</p>
+<div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Select({
+  field:<span class="string">'#tempalte'</span>
+})</code></pre></div><h3 id="field-为其他-dom">field 为其他 DOM<a href="#field-为其他-dom" class="anchor">¶</a></h3><p>html 片段</p>
+<div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"#"</span> <span class="attribute">id</span>=<span class="value">"template"</span>&gt;</span><span class="tag">&lt;/<span class="title">a</span>&gt;</span></code></pre></div><p>javascript 片段</p>
+<div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Select({
+    field: <span class="string">'#template'</span>,
+    name: <span class="string">'template'</span>,
+    model: [
+        {value:<span class="string">'0'</span>, text: <span class="string">'蓝色模板'</span>},
+        {value:<span class="string">'1'</span>, text: <span class="string">'红色模板'</span>}
+    ]
+});</code></pre></div><h2 id="配置说明">配置说明<a href="#配置说明" class="anchor">¶</a></h2><h3 id="field-string">field <em>string</em><a href="#field-string" class="anchor">¶</a></h3><p>field 可以为 select 或 其他任何 DOM。</p>
+<p><strong>注意：</strong>field只能为一个 DOM，如果选出来多个会取第一个</p>
+<ul>
+<li>如果为 select，会将其隐藏。</li>
+<li>如果为 DOM，实例化的时候则需要提供 model 作为数据源</li>
+</ul>
+<h3 id="model-object">model <em>object</em><a href="#model-object" class="anchor">¶</a></h3><p>model 的来源有两处</p>
+<ol>
+<li>初始化传入</li>
+<li>如果 field 为 select，则会根据结构生成 model</li>
+</ol>
+<p>model 的格式为</p>
+<div class="highlight"><pre><code class="javascript">[
+    {value:<span class="string">'value1'</span>, text: <span class="string">'text1'</span>, selected: <span class="literal">true</span>},
+    {value:<span class="string">'value2'</span>, text: <span class="string">'text2'</span>}
+]</code></pre></div><p><code>value</code> <code>text</code> 均为 option 的属性</p>
+<h3 id="template-string">template <em>string</em><a href="#template-string" class="anchor">¶</a></h3><p>生成组件的模版，数据源为 model。</p>
+<h3 id="classprefix-string">classPrefix <em>string</em>_<a href="#classprefix-string" class="anchor">¶</a></h3><p>样式前缀，默认为 <code>ue-select</code></p>
+<h3 id="name-string">name <em>string</em><a href="#name-string" class="anchor">¶</a></h3><p>模拟 select 的属性，表单项需要的 name 值，等同于 <code>select.name</code></p>
+<p><strong>注意</strong>：如果 field 不是 select，那么会先在页面找 name 的 input，找不到再创建一个。</p>
+<h3 id="value-string">value <em>string</em><a href="#value-string" class="anchor">¶</a></h3><p>模拟 select 的属性，获取被选中 option 的 value 值，等同于 <code>select.value</code>, 多选时用“,”隔开</p>
+<h3 id="multiple-boolean">multiple <em>boolean</em><a href="#multiple-boolean" class="anchor">¶</a></h3><p>多选框，采用 checkbox 进行多选，field 为 select设置为multiple无效，必须在这设置</p>
+<h2 id="方法">方法<a href="#方法" class="anchor">¶</a></h2><h3 id="select-option">.select(option)<a href="#select-option" class="anchor">¶</a></h3><p>//TODO</p>
+<h2 id="事件">事件<a href="#事件" class="anchor">¶</a></h2><h3 id="change">change<a href="#change" class="anchor">¶</a></h3><p>//TODO</p>
+<h2 id="问题讨论">问题讨论<a href="#问题讨论" class="anchor">¶</a></h2>
+  </div>
+</article>
+</div>
+      </div>
+      
+    </div>
+    <div id="footer-wrapper">
+      <footer>
+        <p class="powered"><a href="https://spmjs.org">spmjs</a> •
+<a href="http://seajs.org">Sea.js</a> •
+<a href="https://github.com/spmjs/nico-cmd">nico-cmd</a> •
+<a href="http://lab.lepture.com/nico/">nico</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

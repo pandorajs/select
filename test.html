@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="vendor/jquery/jquery.js"></script>
+</head>
+<body>
+<input type="text" id="test"/>
+<script>
+  $('#test').on('keydown', function() {
+    return false;
+  }).on('keyup', function() {
+    console.log('keyup')
+  });
+</script>
+</body>
+</html>

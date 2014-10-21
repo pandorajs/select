@@ -1,0 +1,38 @@
+<div class="input {{#if hasSelected}}has-items{{else}}is-label{{/if}}" data-role="select">
+  <div class="selected-panel" data-role="selected" style="min-width:{{minWidth}};max-width:{{maxWidth}};width:{{width}}">
+    {{#if hasSelected}}
+      {{#if multiple}}
+        {{#each select}}
+          {{#if selected}}
+            <div class="item" data-value="{{value}}">{{{text}}}</div>
+          {{/if}}
+        {{/each}}
+      {{else}}
+        {{#each select}}
+          {{#if selected}}
+            <span class="single-text" data-role="single-text">{{{text}}}</span>{{#if ../../search}}<input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>{{/if}}
+          {{/if}}
+        {{/each}}
+      {{/if}}
+    {{else}}
+      {{#if search}}
+        <span class="single-text" data-role="single-text"></span><input type="text" placeholder="{{label}}" data-role="placeholder" class="placeholder" autocomplete="off"/>
+      {{else}}
+        {{{label}}}
+      {{/if}}
+    {{/if}}
+  </div>
+</div>
+<div class="dropdown" data-role="dropdown" style="display:none">
+  <div class="dropdown-content">
+    {{#if multiple}}
+      {{#each select}}
+        {{> multiItem}}
+      {{/each}}
+    {{else}}
+      {{#each select}}
+        {{> singleItem}}
+      {{/each}}
+    {{/if}}
+  </div>
+</div>

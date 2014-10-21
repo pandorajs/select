@@ -80,6 +80,24 @@ define(function(require, exports, module) {
         expect(select.role('item').length).to.be(3);
       });
 
+      it('hasOptionAll is true', function () {
+        select = new Select({
+          field: '#test',
+          hasOptionAll: true,
+          load: function(callback) {
+            callback([
+              {value:'0', text:'blue template'},
+              {value:'1', text:'red template'},
+              {value:'2', text:'green template'}
+            ]);
+          }
+        });
+
+        expect(select.role('single-text').text()).to.be(select.option('defaultText'));
+        expect(select.role('item').length).to.be(4);
+        expect(select.role('item').first().text()).to.be(select.option('defaultText'));
+      });
+
       it('toggle click select', function () {
         select = new Select({
           field: '#test',
@@ -127,16 +145,12 @@ define(function(require, exports, module) {
         });
 
         var item0 = select.role('item').eq(0);
-        var item1 = select.role('item').eq(1);
 
         select.role('select').trigger('click');
 
         item0.trigger('click');
-        //item1.trigger('click');
-        expect(item0.hasClass('selected')).to.be(true);
-        //console.log(select.role('selected').html());
-        //expect(item1.hasClass('selected')).to.be(true);
-        //expect(select.role('selected').find('[data-value=0]').length).to.be(1);
+        expect(select.role('selected').children().length).to.be(1);
+
       });
 
     });
@@ -202,6 +216,22 @@ define(function(require, exports, module) {
         expect(select.data('select')[0].selected).to.be(false);
         expect(select.value).to.be(null);
         expect(select.searchInput.val()).to.be('');
+      });
+
+      it('async load and open search', function () {
+        select = new Select({
+          field: '#test',
+          search: true,
+          load: function(callback) {
+            callback([
+              {value:'0', text:'blue template'},
+              {value:'1', text:'red template'},
+              {value:'2', text:'green template'}
+            ]);
+          }
+        });
+
+        expect(select.role('item').length).to.be(3);
       });
 
     });

@@ -44,7 +44,7 @@ seajs.use(['select'], function(Select) {
     new Select({
         field: '#example2',
         search: true,
-        placeholder: '请输入...',
+        placeholder: '模板风格',
         //multiple: true,
         name: 'template',
         hasOptionAll: true,

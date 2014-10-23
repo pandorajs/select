@@ -51,12 +51,14 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             multiple: false,
             // 分隔符，多选时才有用
             delimiter: ",",
+            // select label 文本
             placeholder: "请选择",
             search: false,
             hasOptionAll: false,
             defaultText: "全部",
             sifterOptions: {
                 fields: [ "text" ],
+                placeholder: "请输入...",
                 emptyTemplate: "无匹配项",
                 limit: 1e3
             },
@@ -72,7 +74,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             // value: null,
             // minWidth: null,
             // maxWidth: null,
-            selectedIndex: 0,
+            selectedIndex: null,
             template: require("./select-debug.handlebars"),
             templateOptions: {
                 partials: {
@@ -162,7 +164,12 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             self.role("single-text").hide();
             self.activeInput = true;
             self.clearValue();
-            self.searchInput.css("width", width).attr("maxlength", self.maxLength).attr("placeholder", self.option("placeholder"));
+            self.searchInput.css("width", width).attr("maxlength", self.maxLength).attr("placeholder", self.option("sifterOptions/placeholder"));
+        },
+        hidePlaceholder: function() {
+            this.role("single-text").show().text(this.text || this.option("placeholder"));
+            this.activeInput = false;
+            this.searchInput.removeAttr("placeholder");
         },
         // 按了 enter 键
         keyEnter: function(e) {
@@ -297,7 +304,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
      * @private
      */
         initAttrs: function() {
-            var self = this, selectName, selectElem, field = self.field, tagName = self.tagName, model = self.option("model"), multiple = self.option("multiple"), value = self.option("value") || field.attr("value") || field.val();
+            var self = this, selectName, selectElem, field = self.field, tagName = self.tagName, model = self.option("model"), multiple = self.option("multiple"), value = self.option("value") || field.attr("value") || field.val() || null;
             if (tagName === "select") {
                 // option 设置 model 优先级高
                 if (model && model.length) {
@@ -347,6 +354,10 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 multiple: self.option("multiple")
             });
             if (self.option("search")) {
+                var i, l;
+                for (i = 0, l = data.length; i < l; i++) {
+                    data[i].index = i;
+                }
                 self.sifter = new Sifter(data);
             }
             self.render();
@@ -362,7 +373,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             this.setWidth();
             if (this.option("search")) {
                 this.searchInput = this.role("placeholder");
-                this.value === null && this.showPlaceholder();
+                //this.value === null && this.showPlaceholder();
                 this.setPlaceholder();
                 this.bindKeyEvents();
             }
@@ -392,12 +403,13 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                     hasSelected = true;
                 }
             }
-            newValue = values.join(self.option("delimiter"));
+            newValue = values.join(self.option("delimiter")) || null;
             self.data("hasSelected", hasSelected);
             if (typeof self.value === "undefined") {
-                self.value = self.field.val();
+                // 为空值就转为 null
+                self.value = self.field.val() || null;
             }
-            self.field.val(newValue);
+            self.field.val(newValue || "");
             if (self.value !== newValue) {
                 self.value = newValue;
                 self.field.change();
@@ -466,7 +478,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             self.showSelect = true;
             if (self.option("search")) {
                 self.setPlaceholder();
-                self.value === null && self.renderDropdown(self.data("select"));
+                if (self.value === null) {
+                    self.showPlaceholder();
+                }
             }
         },
         /**
@@ -489,8 +503,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             self.role("dropdown").hide();
             self.showSelect = false;
             if (self.option("search")) {
+                self.activeInput = false;
                 self.setPlaceholder();
-                self.value === null && self.showPlaceholder();
+                self.hidePlaceholder();
             }
         },
         /**
@@ -535,7 +550,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
         }
     });
     module.exports = Select;
-    function convertSelect(select, value, multiple) {
+    function convertSelect(select, value, selectedIndex) {
         var i, j, o, option, fields, field, model = [], options = select.options, l = options.length, selected, selectedFound = false;
         for (i = 0; i < l; i++) {
             option = options[i];
@@ -558,9 +573,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             }
         }
         // 当所有都没有设置 selected，默认设置第一个
-        if (!selectedFound && !multiple && model.length) {
-            model[0].selected = true;
-        }
+        /*if (!selectedFound && !multiple && model.length) {
+      model[0].selected = true;
+    }*/
         return model;
     }
     // 补全 model 对象
@@ -574,9 +589,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 selectedFound = true;
             }
         }
-        if (!selectedFound && !multiple && model.length) {
-            model[0].selected = true;
-        }
+        /*if (!selectedFound && !multiple && model.length) {
+      model[0].selected = true;
+    }*/
         return model;
     }
     function getMaxLength(data) {
@@ -1068,8 +1083,20 @@ define("pandora/select/1.1.0/select-items-debug.handlebars", [ "gallery/handleba
                     data: data
                 }) : helper;
             }
-            buffer += escapeExpression(stack1) + '" class="item" data-index="' + escapeExpression((stack1 = data == null || data === false ? data : data.index, 
-            typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '" data-role="item" data-value="';
+            buffer += escapeExpression(stack1) + '" class="item" data-index="';
+            if (helper = helpers.index) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.index;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            buffer += escapeExpression(stack1) + '" data-role="item" data-value="';
             if (helper = helpers.value) {
                 stack1 = helper.call(depth0, {
                     hash: {},
@@ -1352,7 +1379,7 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
         }
         function program16(depth0, data) {
             var buffer = "", stack1, helper;
-            buffer += '\n        <span class="single-text" data-role="single-text"></span><input type="text" placeholder="';
+            buffer += '\n        <span class="single-text" data-role="single-text">';
             if (helper = helpers.label) {
                 stack1 = helper.call(depth0, {
                     hash: {},
@@ -1365,7 +1392,10 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
                     data: data
                 }) : helper;
             }
-            buffer += escapeExpression(stack1) + '" data-role="placeholder" class="placeholder" autocomplete="off"/>\n      ';
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '</span><input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>\n      ';
             return buffer;
         }
         function program18(depth0, data) {

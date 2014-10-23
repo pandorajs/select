@@ -63,16 +63,21 @@ define(function(require, exports, module) {
       // 分隔符，多选时才有用
       delimiter: ',',
 
+      // select label 文本
       placeholder: '请选择',
 
       search: false,
 
       hasOptionAll: false,
 
+      // 显示 label 文本，只用在根据原生的select初始的
+      hasLabel: true,
+
       defaultText: '全部',
 
       sifterOptions: {
         fields: ['text'],
+        placeholder: '请输入...',
         emptyTemplate: '无匹配项',
         limit: 1000
       },
@@ -93,8 +98,6 @@ define(function(require, exports, module) {
 
       // minWidth: null,
       // maxWidth: null,
-
-      selectedIndex: 0,
 
       template: require('./select.handlebars'),
       templateOptions: {
@@ -170,6 +173,7 @@ define(function(require, exports, module) {
         });
         data.push(item);
       });
+
       self.renderDropdown(data);
     },
 
@@ -195,9 +199,16 @@ define(function(require, exports, module) {
       self.role('single-text').hide();
       self.activeInput = true;
       self.clearValue();
-      self.searchInput.css('width', width)
+      self.searchInput
+        .css('width', width)
         .attr('maxlength', self.maxLength)
-        .attr('placeholder', self.option('placeholder'));
+        .attr('placeholder', self.option('sifterOptions/placeholder'));
+    },
+
+    hidePlaceholder: function() {
+      this.role('single-text').show().text(this.text || this.option('placeholder'));
+      this.activeInput = false;
+      this.searchInput.removeAttr('placeholder');
     },
 
     // 按了 enter 键
@@ -288,11 +299,11 @@ define(function(require, exports, module) {
 
       self.data('hasSelected', !!self.option('value') || !!field.val());
 
+      self.option('placeholder', field.attr('placeholder'));
       self.data('label',
         self.option('label') ||
         field.data('label') ||
-        self.option('placeholder') ||
-        field.attr('placeholder'));
+        self.option('placeholder'));
 
       self.once('render', function() {
         self.element.addClass(
@@ -367,17 +378,19 @@ define(function(require, exports, module) {
         tagName = self.tagName,
         model = self.option('model'),
         multiple = self.option('multiple'),
-        value = self.option('value') || field.attr('value') || field.val();
+        value = self.option('value') || field.attr('value') || field.val() || null;
 
 
 
       if (tagName === 'select') {
+        // 是否默认选中第一个
+        value = self.option('hasLabel') ? field.attr('value') : field.val();
         // option 设置 model 优先级高
         if (model && model.length) {
-          self.data('select', completeModel(model, value, multiple));
+          self.data('select', completeModel(model, value));
         } else {
-          self.data('select', convertSelect(field[0], value, multiple));
-          self.option('model', convertSelect(field[0], value, multiple));
+          self.data('select', convertSelect(field[0], value));
+          self.option('model', convertSelect(field[0], value));
         }
       } else {
         if (!model || !model.length) {
@@ -390,7 +403,7 @@ define(function(require, exports, module) {
           });
         }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value, multiple));
+        self.data('select', completeModel(model, value));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -446,7 +459,7 @@ define(function(require, exports, module) {
       this.setWidth();
       if (this.option('search')) {
         this.searchInput = this.role('placeholder');
-        this.value === null && this.showPlaceholder();
+        //this.value === null && this.showPlaceholder();
         this.setPlaceholder();
         this.bindKeyEvents();
       }
@@ -486,15 +499,16 @@ define(function(require, exports, module) {
         }
       }
 
-      newValue = values.join(self.option('delimiter'));
+      newValue = values.join(self.option('delimiter')) || null;
 
       self.data('hasSelected', hasSelected);
 
       if (typeof self.value === 'undefined') {
-        self.value = self.field.val();
+        // 为空值就转为 null
+        self.value = self.field.val() || null;
       }
 
-      self.field.val(newValue);
+      self.field.val(newValue || '');
 
       if (self.value !== newValue) {
         self.value = newValue;
@@ -588,7 +602,9 @@ define(function(require, exports, module) {
       self.showSelect = true;
       if (self.option('search')) {
         self.setPlaceholder();
-        self.value === null && self.renderDropdown(self.data('select'));
+        if (self.value === null) {
+          self.showPlaceholder();
+        }
       }
     },
 
@@ -618,8 +634,9 @@ define(function(require, exports, module) {
         .hide();
       self.showSelect = false;
       if (self.option('search')) {
+        self.activeInput = false;
         self.setPlaceholder();
-        self.value === null && self.showPlaceholder();
+        self.hidePlaceholder();
       }
     },
 
@@ -684,9 +701,8 @@ define(function(require, exports, module) {
 
   module.exports = Select;
 
-  function convertSelect(select, value, multiple) {
-    var i, j, o, option,
-      fields, field,
+  function convertSelect(select, value) {
+    var i, o, option,
       model = [],
       options = select.options,
       l = options.length,
@@ -718,33 +734,18 @@ define(function(require, exports, module) {
       }
     }
 
-    // 当所有都没有设置 selected，默认设置第一个
-    if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
-    }
-
     return model;
   }
 
   // 补全 model 对象
-  function completeModel(model, value, multiple) {
-    var i, l,
-      selected,
-      selectedFound = false;
+  function completeModel(model, value) {
+    var i, l;
 
     for (i = 0, l = model.length; i < l; i++) {
 
       if (value !== null) {
         model[i].selected = (value === model[i].value);
       }
-
-      if (model[i].selected) {
-        selectedFound = true;
-      }
-    }
-
-    if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
     }
 
     return model;

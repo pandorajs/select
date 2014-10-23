@@ -187,6 +187,20 @@ module.exports = function(grunt) {
       }
     },
 
+    'gh-pages': {
+      options: {
+        base: '_site',
+        repo: 'https://github.com/pandorajs/select.git',
+        user: {
+          name: 'lynzz',
+          email: 'lynzz168@gmail.com'
+        }
+
+      },
+      src: ['**/*']
+    },
+
+
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %>-<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',

@@ -93,7 +93,7 @@ define(function(require, exports, module) {
           }
         });
 
-        expect(select.role('single-text').text()).to.be(select.option('defaultText'));
+        expect(select.role('item').eq(0).text()).to.be(select.option('defaultText'));
         expect(select.role('item').length).to.be(4);
         expect(select.role('item').first().text()).to.be(select.option('defaultText'));
       });
@@ -220,12 +220,17 @@ define(function(require, exports, module) {
       it('setValue', function () {
         select = new Select({
           field: '#test',
+          hasOptionAll: true,
           model: [
             {value:'0', text:'blue template'},
             {value:'1', text:'red template'},
             {value:'2', text:'green template'}
           ]
         });
+
+        select.setValue('');
+        expect(select.field.val()).to.be('');
+        expect(select.value).to.be(null);
 
         select.setValue('1');
         expect(select.field.val()).to.be('1');

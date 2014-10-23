@@ -70,6 +70,9 @@ define(function(require, exports, module) {
 
       hasOptionAll: false,
 
+      // 显示 label 文本，只用在根据原生的select初始的
+      hasLabel: true,
+
       defaultText: '全部',
 
       sifterOptions: {
@@ -95,8 +98,6 @@ define(function(require, exports, module) {
 
       // minWidth: null,
       // maxWidth: null,
-
-      selectedIndex: null,
 
       template: require('./select.handlebars'),
       templateOptions: {
@@ -298,11 +299,11 @@ define(function(require, exports, module) {
 
       self.data('hasSelected', !!self.option('value') || !!field.val());
 
+      self.option('placeholder', field.attr('placeholder'));
       self.data('label',
         self.option('label') ||
         field.data('label') ||
-        self.option('placeholder') ||
-        field.attr('placeholder'));
+        self.option('placeholder'));
 
       self.once('render', function() {
         self.element.addClass(
@@ -382,12 +383,14 @@ define(function(require, exports, module) {
 
 
       if (tagName === 'select') {
+        // 是否默认选中第一个
+        value = self.option('hasLabel') ? field.attr('value') : field.val();
         // option 设置 model 优先级高
         if (model && model.length) {
-          self.data('select', completeModel(model, value, multiple));
+          self.data('select', completeModel(model, value));
         } else {
-          self.data('select', convertSelect(field[0], value, multiple));
-          self.option('model', convertSelect(field[0], value, multiple));
+          self.data('select', convertSelect(field[0], value));
+          self.option('model', convertSelect(field[0], value));
         }
       } else {
         if (!model || !model.length) {
@@ -400,7 +403,7 @@ define(function(require, exports, module) {
           });
         }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value, multiple));
+        self.data('select', completeModel(model, value));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -698,9 +701,8 @@ define(function(require, exports, module) {
 
   module.exports = Select;
 
-  function convertSelect(select, value, selectedIndex) {
-    var i, j, o, option,
-      fields, field,
+  function convertSelect(select, value) {
+    var i, o, option,
       model = [],
       options = select.options,
       l = options.length,
@@ -732,34 +734,19 @@ define(function(require, exports, module) {
       }
     }
 
-    // 当所有都没有设置 selected，默认设置第一个
-    /*if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
-    }*/
-
     return model;
   }
 
   // 补全 model 对象
-  function completeModel(model, value, multiple) {
-    var i, l,
-      selected,
-      selectedFound = false;
+  function completeModel(model, value) {
+    var i, l;
 
     for (i = 0, l = model.length; i < l; i++) {
 
       if (value !== null) {
         model[i].selected = (value === model[i].value);
       }
-
-      if (model[i].selected) {
-        selectedFound = true;
-      }
     }
-
-    /*if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
-    }*/
 
     return model;
   }

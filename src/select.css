@@ -59,6 +59,7 @@
   -webkit-user-select: auto !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
+  cursor: pointer;
 }
 .ue-select .input::after {
   content: ' ';
@@ -128,6 +129,7 @@
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
+  cursor: text;
 }
 .ue-select .dropdown-active::before {
   position: absolute;

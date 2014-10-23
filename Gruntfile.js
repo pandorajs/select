@@ -187,6 +187,20 @@ module.exports = function(grunt) {
       }
     },
 
+    'gh-pages': {
+      options: {
+        base: '_site',
+        repo: 'https://github.com/pandorajs/select.git',
+        user: {
+          name: 'lynzz',
+          email: 'lynzz168@gmail.com'
+        }
+
+      },
+      src: ['**/*']
+    },
+
+
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %>-<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
@@ -219,9 +233,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('doc', ['clean:doc', 'yuidoc', 'clean:pages', 'copy:doc']);
 
-  grunt.registerTask('test', ['jshint', 'qunit']);
-
-  grunt.registerTask('serve', ['watch', 'spawn']);
+  grunt.registerTask('test', ['karma']);
 
   grunt.registerTask('default', ['test', 'doc', 'build', 'demo']);
 

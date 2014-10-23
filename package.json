@@ -20,7 +20,7 @@
   ],
   "author": {
     "name": "pandorajs",
-    "url": "https://github.com/pandorajs"
+    "url": "https://github.com/pandorajs/select.git"
   },
   "main": "Gruntfile.js",
   "repository": {
@@ -46,6 +46,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-contrib-yuidoc": "*",
     "grunt-coveralls": "*",
+    "grunt-gh-pages": "^0.9.1",
     "grunt-karma": "^0.8.3",
     "grunt-spawn": "^1.1.62",
     "karma": "^0.12.23",

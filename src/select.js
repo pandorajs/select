@@ -63,6 +63,7 @@ define(function(require, exports, module) {
       // 分隔符，多选时才有用
       delimiter: ',',
 
+      // select label 文本
       placeholder: '请选择',
 
       search: false,
@@ -73,6 +74,7 @@ define(function(require, exports, module) {
 
       sifterOptions: {
         fields: ['text'],
+        placeholder: '请输入...',
         emptyTemplate: '无匹配项',
         limit: 1000
       },
@@ -94,7 +96,7 @@ define(function(require, exports, module) {
       // minWidth: null,
       // maxWidth: null,
 
-      selectedIndex: 0,
+      selectedIndex: null,
 
       template: require('./select.handlebars'),
       templateOptions: {
@@ -170,6 +172,7 @@ define(function(require, exports, module) {
         });
         data.push(item);
       });
+
       self.renderDropdown(data);
     },
 
@@ -195,9 +198,16 @@ define(function(require, exports, module) {
       self.role('single-text').hide();
       self.activeInput = true;
       self.clearValue();
-      self.searchInput.css('width', width)
+      self.searchInput
+        .css('width', width)
         .attr('maxlength', self.maxLength)
-        .attr('placeholder', self.option('placeholder'));
+        .attr('placeholder', self.option('sifterOptions/placeholder'));
+    },
+
+    hidePlaceholder: function() {
+      this.role('single-text').show().text(this.text || this.option('placeholder'));
+      this.activeInput = false;
+      this.searchInput.removeAttr('placeholder');
     },
 
     // 按了 enter 键
@@ -367,7 +377,7 @@ define(function(require, exports, module) {
         tagName = self.tagName,
         model = self.option('model'),
         multiple = self.option('multiple'),
-        value = self.option('value') || field.attr('value') || field.val();
+        value = self.option('value') || field.attr('value') || field.val() || null;
 
 
 
@@ -446,7 +456,7 @@ define(function(require, exports, module) {
       this.setWidth();
       if (this.option('search')) {
         this.searchInput = this.role('placeholder');
-        this.value === null && this.showPlaceholder();
+        //this.value === null && this.showPlaceholder();
         this.setPlaceholder();
         this.bindKeyEvents();
       }
@@ -486,15 +496,16 @@ define(function(require, exports, module) {
         }
       }
 
-      newValue = values.join(self.option('delimiter'));
+      newValue = values.join(self.option('delimiter')) || null;
 
       self.data('hasSelected', hasSelected);
 
       if (typeof self.value === 'undefined') {
-        self.value = self.field.val();
+        // 为空值就转为 null
+        self.value = self.field.val() || null;
       }
 
-      self.field.val(newValue);
+      self.field.val(newValue || '');
 
       if (self.value !== newValue) {
         self.value = newValue;
@@ -588,7 +599,9 @@ define(function(require, exports, module) {
       self.showSelect = true;
       if (self.option('search')) {
         self.setPlaceholder();
-        self.value === null && self.renderDropdown(self.data('select'));
+        if (self.value === null) {
+          self.showPlaceholder();
+        }
       }
     },
 
@@ -618,8 +631,9 @@ define(function(require, exports, module) {
         .hide();
       self.showSelect = false;
       if (self.option('search')) {
+        self.activeInput = false;
         self.setPlaceholder();
-        self.value === null && self.showPlaceholder();
+        self.hidePlaceholder();
       }
     },
 
@@ -684,7 +698,7 @@ define(function(require, exports, module) {
 
   module.exports = Select;
 
-  function convertSelect(select, value, multiple) {
+  function convertSelect(select, value, selectedIndex) {
     var i, j, o, option,
       fields, field,
       model = [],
@@ -719,9 +733,9 @@ define(function(require, exports, module) {
     }
 
     // 当所有都没有设置 selected，默认设置第一个
-    if (!selectedFound && !multiple && model.length) {
+    /*if (!selectedFound && !multiple && model.length) {
       model[0].selected = true;
-    }
+    }*/
 
     return model;
   }
@@ -743,9 +757,9 @@ define(function(require, exports, module) {
       }
     }
 
-    if (!selectedFound && !multiple && model.length) {
+    /*if (!selectedFound && !multiple && model.length) {
       model[0].selected = true;
-    }
+    }*/
 
     return model;
   }

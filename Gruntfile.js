@@ -47,9 +47,23 @@ module.exports = function(grunt) {
         force: true
       },
       all: {
-        src: 'report/*.info'
+        src: 'report/**/*.info'
       }
     },
+
+    coverage: {
+      options: {
+        thresholds: {
+          'statements': 60,
+          'branches': 50,
+          'lines': 60,
+          'functions': 60
+        },
+        dir: 'coverage',
+        root: 'test'
+      }
+    },
+
 
     karma: {
       unit: {

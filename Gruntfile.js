@@ -140,20 +140,8 @@ module.exports = function(grunt) {
           src: ['**'],
           dest: '<%= sea %>'
         }]
-      },
-
-      sifter: {
-        src: 'vendor/sifter/sifter.js',
-        dest: 'src/sifter.js',
-        options: {
-          process: function (content, srcpath) {
-            var ret = 'define(function(require, exports, module){\n';
-            ret += content;
-            ret += '\n});';
-            return ret;
-          }
-        }
       }
+
     },
 
     transport: {

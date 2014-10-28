@@ -56,13 +56,6 @@
   if (contain(query, 'dist')) {
     srcdir = 'dist';
     
-      seajs.use("./dist/select-items.handlebars.js");
-      seajs.use("./dist/select-multi-item.handlebars.js");
-      seajs.use("./dist/select-single-item.handlebars.js");
-      seajs.use("./dist/select.css.js");
-      seajs.use("./dist/select.handlebars.js");
-      seajs.use("./dist/select.js");
-      seajs.use("./dist/sifter.js");
   } else if (contain(query, 'cov')) {
     srcdir = 'src-cov';
   }
@@ -121,7 +114,6 @@
       "$-debug": 'jquery/jquery/2.1.0/jquery-debug'
         ,"select.css": resolve("select.css")
         ,"select": resolve("select.js")
-        ,"sifter": resolve("sifter.js")
     }});
 
     // 加载依赖的 css 文件
@@ -169,6 +161,7 @@
   <div><a href="https://github.com/aralejs/aralejs.org/wiki/%E5%8E%86%E5%8F%B2%E8%AE%B0%E5%BD%95%E4%B9%A6%E5%86%99%E8%A7%84%E8%8C%83">书写规范</a></div>
   <div class="entry-content">
     <h2 id="1-1-0">1.1.0<a href="#1-1-0" class="anchor">¶</a></h2><p><code>new</code> 添加 sifter支持</p>
+<p><code>new</code> 添加 hasLabel 属性，针对由原生的 select 生成的，控制是否显示 label 文本</p>
 <h2 id="1-0-0">1.0.0<a href="#1-0-0" class="anchor">¶</a></h2><p><code>new</code> pandora/select First version.</p>
 
   </div>

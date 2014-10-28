@@ -55,6 +55,8 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             placeholder: "请选择",
             search: false,
             hasOptionAll: false,
+            // 显示 label 文本，只用在根据原生的select初始的
+            hasLabel: false,
             defaultText: "全部",
             sifterOptions: {
                 fields: [ "text" ],
@@ -72,9 +74,8 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             model: [],
             // name: null,
             // value: null,
-            // minWidth: null,
-            // maxWidth: null,
-            selectedIndex: null,
+            minWidth: null,
+            maxWidth: 200,
             template: require("./select-debug.handlebars"),
             templateOptions: {
                 partials: {
@@ -86,10 +87,8 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 this.element.insertAfter(this.option("field")).show();
             },
             delegates: {
-                click: function(e) {
-                    e.stopPropagation();
-                },
                 "click [data-role=select]": function(e) {
+                    e.stopPropagation();
                     if (this.showSelect) {
                         this.hideDropdown();
                     } else {
@@ -120,7 +119,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 return false;
             }
             var self = this;
-            var result = self.sifter.search($.trim(self.searchInput.val()), self.option("sifterOptions"));
+            var result = self.searchResult = self.sifter.search($.trim(self.searchInput.val()), self.option("sifterOptions"));
             var items = result.items;
             var data = [];
             // 按原始数据顺序排序
@@ -159,7 +158,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
         return;
       }*/
             var self = this;
-            var width = parseInt(self.data("minWidth"), 10) - 2;
+            var width = getStringWidth(self.role("selected"), self.data("select"));
             self.maxLength || (self.maxLength = getMaxLength(self.data("select")));
             self.role("single-text").hide();
             self.activeInput = true;
@@ -167,8 +166,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             self.searchInput.css("width", width).attr("maxlength", self.maxLength).attr("placeholder", self.option("sifterOptions/placeholder"));
         },
         hidePlaceholder: function() {
-            this.role("single-text").show().text(this.text || this.option("placeholder"));
-            this.activeInput = false;
+            if (this.value === null && this.text === null) {
+                this.role("select").addClass("is-label");
+            }
             this.searchInput.removeAttr("placeholder");
         },
         // 按了 enter 键
@@ -248,13 +248,14 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             // 存储 field 的 tagName
             self.tagName = field[0].tagName.toLowerCase();
             self.data("hasSelected", !!self.option("value") || !!field.val());
-            self.data("label", self.option("label") || field.data("label") || self.option("placeholder") || field.attr("placeholder"));
+            self.option("placeholder", field.attr("placeholder"));
+            self.data("label", self.option("label") || field.data("label") || self.option("placeholder"));
             self.once("render", function() {
                 self.element.addClass(self.option("classPrefix") + "-" + (self.option("multiple") ? "multiple" : "single"));
                 self.initDelegates({
                     mousedown: function(e) {
                         if (!(self.is(e.target) || self.$(e.target).length)) {
-                            self.hideDropdown();
+                            self.showSelect && self.hideDropdown();
                         }
                     }
                 }, self.document);
@@ -306,12 +307,14 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
         initAttrs: function() {
             var self = this, selectName, selectElem, field = self.field, tagName = self.tagName, model = self.option("model"), multiple = self.option("multiple"), value = self.option("value") || field.attr("value") || field.val() || null;
             if (tagName === "select") {
+                // 是否默认选中第一个
+                value = self.option("hasLabel") ? field.attr("value") : field.val();
                 // option 设置 model 优先级高
                 if (model && model.length) {
-                    self.data("select", completeModel(model, value, multiple));
+                    self.data("select", completeModel(model, value));
                 } else {
-                    self.data("select", convertSelect(field[0], value, multiple));
-                    self.option("model", convertSelect(field[0], value, multiple));
+                    self.data("select", convertSelect(field[0], value));
+                    self.option("model", convertSelect(field[0], value));
                 }
             } else {
                 if (!model || !model.length) {
@@ -324,7 +327,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                     });
                 }
                 // trigger 如果为其他 DOM，则由用户提供 model
-                self.data("select", completeModel(model, value, multiple));
+                self.data("select", completeModel(model, value));
                 // 如果 name 存在则创建隐藏域
                 selectName = self.option("name");
                 if (selectName) {
@@ -350,14 +353,11 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             var data = self.option("model");
             self.data({
                 select: data,
+                maxWidth: self.option("maxWidth") + "px",
                 search: self.option("search"),
                 multiple: self.option("multiple")
             });
             if (self.option("search")) {
-                var i, l;
-                for (i = 0, l = data.length; i < l; i++) {
-                    data[i].index = i;
-                }
                 self.sifter = new Sifter(data);
             }
             self.render();
@@ -381,7 +381,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
         bindKeyEvents: function() {
             var self = this;
             self.searchInput.off("keydown").on("keydown", function(e) {
-                if (self.value !== null) {
+                if (self.value !== null || self.text !== null) {
                     // 禁止输入
                     self.disableKey = true;
                     return false;
@@ -425,8 +425,9 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 data[i].selected = false;
             }
             self.data("hasSelected", false);
-            //self.value = self.field.val();
             self.value = null;
+            self.text = null;
+            self.field.val("");
             self.searchInput.val("");
         },
         /**
@@ -436,23 +437,26 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
      * @private
      */
         setWidth: function() {
-            var self = this, minWidth = self.option("minWidth"), maxWidth = self.option("maxWidth"), calWidth;
+            var self = this, WIDTH_INPUT = self.option("search") ? 6 : 0, minWidth = self.option("minWidth"), maxWidth = self.option("maxWidth"), calWidth;
             if (!minWidth) {
                 // 6 是 search input 的最小宽度
-                minWidth = (self.option("multiple") ? 20 : 6) + getStringWidth(self.role("selected"), self.data("select"));
+                minWidth = (self.option("multiple") ? 20 : WIDTH_INPUT) + getStringWidth(self.role("selected"), self.data("select"));
             }
             // 设置宽度同时保存到data备用
             if (maxWidth) {
                 if (minWidth >= maxWidth) {
                     self.role("selected").css("width", maxWidth);
                     self.data("width", maxWidth + "px");
+                    self.role("single-text").css("max-width", maxWidth - WIDTH_INPUT);
                 } else {
                     self.role("selected").css("min-width", minWidth).css("max-width", maxWidth);
+                    self.role("single-text").css("max-width", maxWidth - WIDTH_INPUT);
                     self.data("minWidth", minWidth + "px");
                     self.data("maxWidth", maxWidth + "px");
                 }
             } else {
                 self.role("selected").css("min-width", minWidth);
+                self.role("single-text").css("max-width", minWidth - WIDTH_INPUT);
                 self.data("minWidth", minWidth + "px");
             }
         },
@@ -478,8 +482,14 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             self.showSelect = true;
             if (self.option("search")) {
                 self.setPlaceholder();
-                if (self.value === null) {
+                if (!self.value && !self.text) {
+                    //var data = self.option('select');
                     self.showPlaceholder();
+                    /*var i, l;
+          for (i = 0, l = data.length; i < l; i++) {
+            data[i].index = i;
+          }*/
+                    self.renderDropdown(self.data("select"));
                 }
             }
         },
@@ -494,19 +504,18 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             if (self.role("dropdown").is(":hidden")) {
                 return;
             }
+            self.showSelect = false;
             self.role("select").removeClass("focus input-active dropdown-active");
             if (!self.option("multiple")) {
+                if (self.option("search")) {
+                    self.activeInput = false;
+                    self.setPlaceholder();
+                    self.hidePlaceholder();
+                }
                 self.role("selected").removeClass("is-label");
-                self.role("single-text").text(self.text || undefined);
-                self.activeInput ? self.role("select").addClass("input-active") : self.role("single-text").show();
+                self.role("single-text").show().text(self.text || self.option("placeholder"));
             }
             self.role("dropdown").hide();
-            self.showSelect = false;
-            if (self.option("search")) {
-                self.activeInput = false;
-                self.setPlaceholder();
-                self.hidePlaceholder();
-            }
         },
         /**
      * 单选
@@ -550,8 +559,8 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
         }
     });
     module.exports = Select;
-    function convertSelect(select, value, selectedIndex) {
-        var i, j, o, option, fields, field, model = [], options = select.options, l = options.length, selected, selectedFound = false;
+    function convertSelect(select, value) {
+        var i, o, option, model = [], options = select.options, l = options.length, selected, selectedFound = false;
         for (i = 0; i < l; i++) {
             option = options[i];
             if (!selectedFound) {
@@ -563,6 +572,7 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
             }
             o = {
                 text: option.text,
+                index: i,
                 value: option.value,
                 selected: !selectedFound && selected,
                 disabled: option.disabled
@@ -572,26 +582,17 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "./sifter-debug", "./se
                 selectedFound = true;
             }
         }
-        // 当所有都没有设置 selected，默认设置第一个
-        /*if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
-    }*/
         return model;
     }
     // 补全 model 对象
-    function completeModel(model, value, multiple) {
-        var i, l, selected, selectedFound = false;
+    function completeModel(model, value) {
+        var i, l;
         for (i = 0, l = model.length; i < l; i++) {
+            model[i].index = i;
             if (value !== null) {
                 model[i].selected = value === model[i].value;
             }
-            if (model[i].selected) {
-                selectedFound = true;
-            }
         }
-        /*if (!selectedFound && !multiple && model.length) {
-      model[0].selected = true;
-    }*/
         return model;
     }
     function getMaxLength(data) {
@@ -1422,35 +1423,20 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
         function program20(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n      ";
-            stack1 = helpers.each.call(depth0, depth0 && depth0.select, {
-                hash: {},
-                inverse: self.noop,
-                fn: self.program(21, program21, data),
-                data: data
-            });
-            if (stack1 || stack1 === 0) {
-                buffer += stack1;
-            }
-            buffer += "\n    ";
-            return buffer;
-        }
-        function program21(depth0, data) {
-            var buffer = "", stack1;
-            buffer += "\n        ";
             stack1 = self.invokePartial(partials.multiItem, "multiItem", depth0, helpers, partials, data);
             if (stack1 || stack1 === 0) {
                 buffer += stack1;
             }
-            buffer += "\n      ";
+            buffer += "\n    ";
             return buffer;
         }
-        function program23(depth0, data) {
+        function program22(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n      ";
             stack1 = helpers.each.call(depth0, depth0 && depth0.select, {
                 hash: {},
                 inverse: self.noop,
-                fn: self.program(24, program24, data),
+                fn: self.program(23, program23, data),
                 data: data
             });
             if (stack1 || stack1 === 0) {
@@ -1459,7 +1445,7 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
             buffer += "\n    ";
             return buffer;
         }
-        function program24(depth0, data) {
+        function program23(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n        ";
             stack1 = self.invokePartial(partials.singleItem, "singleItem", depth0, helpers, partials, data);
@@ -1531,7 +1517,7 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
         buffer += '\n  </div>\n</div>\n<div class="dropdown" data-role="dropdown" style="display:none">\n  <div class="dropdown-content">\n    ';
         stack1 = helpers["if"].call(depth0, depth0 && depth0.multiple, {
             hash: {},
-            inverse: self.program(23, program23, data),
+            inverse: self.program(22, program22, data),
             fn: self.program(20, program20, data),
             data: data
         });
@@ -1591,8 +1577,20 @@ define("pandora/select/1.1.0/select-single-item-debug.handlebars", [ "gallery/ha
         if (stack1 || stack1 === 0) {
             buffer += stack1;
         }
-        buffer += '" data-index="' + escapeExpression((stack1 = data == null || data === false ? data : data.index, 
-        typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '" data-role="item" data-value="';
+        buffer += '" data-index="';
+        if (helper = helpers.index) {
+            stack1 = helper.call(depth0, {
+                hash: {},
+                data: data
+            });
+        } else {
+            helper = depth0 && depth0.index;
+            stack1 = typeof helper === functionType ? helper.call(depth0, {
+                hash: {},
+                data: data
+            }) : helper;
+        }
+        buffer += escapeExpression(stack1) + '" data-role="item" data-value="';
         if (helper = helpers.value) {
             stack1 = helper.call(depth0, {
                 hash: {},
@@ -1638,133 +1636,162 @@ define("pandora/select/1.1.0/select-multi-item-debug.handlebars", [ "gallery/han
             helpers[key] = helpers[key] || Handlebars.helpers[key];
         }
         data = data || {};
-        var buffer = "", stack1, helper, functionType = "function", escapeExpression = this.escapeExpression, self = this;
-        function program1(depth0, data) {
+        var buffer = "", stack1, helper, options, functionType = "function", escapeExpression = this.escapeExpression, self = this, blockHelperMissing = helpers.blockHelperMissing;
+        function program1(depth0, data, depth1) {
+            var buffer = "", stack1, helper;
+            buffer += '\n<label title="';
+            if (helper = helpers.text) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.text;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            buffer += escapeExpression(stack1) + '" class="item';
+            stack1 = helpers["if"].call(depth0, depth0 && depth0.selected, {
+                hash: {},
+                inverse: self.noop,
+                fn: self.program(2, program2, data),
+                data: data
+            });
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            stack1 = helpers["if"].call(depth0, depth0 && depth0.disabled, {
+                hash: {},
+                inverse: self.noop,
+                fn: self.program(4, program4, data),
+                data: data
+            });
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '" data-index="' + escapeExpression((stack1 = data == null || data === false ? data : data.index, 
+            typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '" data-role="item" data-value="';
+            if (helper = helpers.value) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.value;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '">\n  <input type="checkbox" data-text="';
+            if (helper = helpers.text) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.text;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '" value="';
+            if (helper = helpers.value) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.value;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '"';
+            stack1 = helpers["if"].call(depth0, depth0 && depth0.selected, {
+                hash: {},
+                inverse: self.noop,
+                fn: self.program(6, program6, data),
+                data: data
+            });
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            stack1 = helpers["if"].call(depth0, depth0 && depth0.disabled, {
+                hash: {},
+                inverse: self.noop,
+                fn: self.program(4, program4, data),
+                data: data
+            });
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += '>\n  <span style="max-width: ' + escapeExpression((stack1 = depth1 && depth1.maxWidth, 
+            typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '">';
+            if (helper = helpers.text) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.text;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += "</span>\n</label>\n";
+            return buffer;
+        }
+        function program2(depth0, data) {
             return " selected";
         }
-        function program3(depth0, data) {
+        function program4(depth0, data) {
             return " disabled";
         }
-        function program5(depth0, data) {
+        function program6(depth0, data) {
             return " checked";
         }
-        buffer += '<label title="';
-        if (helper = helpers.text) {
-            stack1 = helper.call(depth0, {
-                hash: {},
-                data: data
-            });
-        } else {
-            helper = depth0 && depth0.text;
-            stack1 = typeof helper === functionType ? helper.call(depth0, {
-                hash: {},
-                data: data
-            }) : helper;
-        }
-        buffer += escapeExpression(stack1) + '" class="item';
-        stack1 = helpers["if"].call(depth0, depth0 && depth0.selected, {
+        options = {
             hash: {},
             inverse: self.noop,
-            fn: self.program(1, program1, data),
+            fn: self.programWithDepth(1, program1, data, depth0),
             data: data
-        });
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
+        };
+        if (helper = helpers.select) {
+            stack1 = helper.call(depth0, options);
+        } else {
+            helper = depth0 && depth0.select;
+            stack1 = typeof helper === functionType ? helper.call(depth0, options) : helper;
         }
-        stack1 = helpers["if"].call(depth0, depth0 && depth0.disabled, {
-            hash: {},
-            inverse: self.noop,
-            fn: self.program(3, program3, data),
-            data: data
-        });
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        buffer += '" data-index="' + escapeExpression((stack1 = data == null || data === false ? data : data.index, 
-        typeof stack1 === functionType ? stack1.apply(depth0) : stack1)) + '" data-role="item" data-value="';
-        if (helper = helpers.value) {
-            stack1 = helper.call(depth0, {
+        if (!helpers.select) {
+            stack1 = blockHelperMissing.call(depth0, stack1, {
                 hash: {},
+                inverse: self.noop,
+                fn: self.programWithDepth(1, program1, data, depth0),
                 data: data
             });
-        } else {
-            helper = depth0 && depth0.value;
-            stack1 = typeof helper === functionType ? helper.call(depth0, {
-                hash: {},
-                data: data
-            }) : helper;
         }
         if (stack1 || stack1 === 0) {
             buffer += stack1;
         }
-        buffer += '">\n  <input type="checkbox" data-text="';
-        if (helper = helpers.text) {
-            stack1 = helper.call(depth0, {
-                hash: {},
-                data: data
-            });
-        } else {
-            helper = depth0 && depth0.text;
-            stack1 = typeof helper === functionType ? helper.call(depth0, {
-                hash: {},
-                data: data
-            }) : helper;
-        }
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        buffer += '" value="';
-        if (helper = helpers.value) {
-            stack1 = helper.call(depth0, {
-                hash: {},
-                data: data
-            });
-        } else {
-            helper = depth0 && depth0.value;
-            stack1 = typeof helper === functionType ? helper.call(depth0, {
-                hash: {},
-                data: data
-            }) : helper;
-        }
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        buffer += '"';
-        stack1 = helpers["if"].call(depth0, depth0 && depth0.selected, {
-            hash: {},
-            inverse: self.noop,
-            fn: self.program(5, program5, data),
-            data: data
-        });
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        stack1 = helpers["if"].call(depth0, depth0 && depth0.disabled, {
-            hash: {},
-            inverse: self.noop,
-            fn: self.program(3, program3, data),
-            data: data
-        });
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        buffer += ">\n  <span>";
-        if (helper = helpers.text) {
-            stack1 = helper.call(depth0, {
-                hash: {},
-                data: data
-            });
-        } else {
-            helper = depth0 && depth0.text;
-            stack1 = typeof helper === functionType ? helper.call(depth0, {
-                hash: {},
-                data: data
-            }) : helper;
-        }
-        if (stack1 || stack1 === 0) {
-            buffer += stack1;
-        }
-        buffer += "</span>\n</label>\n";
+        buffer += "\n";
         return buffer;
     });
 });

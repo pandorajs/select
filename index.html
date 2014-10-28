@@ -56,13 +56,6 @@
   if (contain(query, 'dist')) {
     srcdir = 'dist';
     
-      seajs.use("./dist/select-items.handlebars.js");
-      seajs.use("./dist/select-multi-item.handlebars.js");
-      seajs.use("./dist/select-single-item.handlebars.js");
-      seajs.use("./dist/select.css.js");
-      seajs.use("./dist/select.handlebars.js");
-      seajs.use("./dist/select.js");
-      seajs.use("./dist/sifter.js");
   } else if (contain(query, 'cov')) {
     srcdir = 'src-cov';
   }
@@ -121,7 +114,6 @@
       "$-debug": 'jquery/jquery/2.1.0/jquery-debug'
         ,"select.css": resolve("select.css")
         ,"select": resolve("select.js")
-        ,"sifter": resolve("sifter.js")
     }});
 
     // 加载依赖的 css 文件
@@ -176,7 +168,7 @@
   <h1 class="entry-title">Select</h1>
   <div class="entry-content">
     <p><a href="https://travis-ci.org/pandorajs/select"><img src="https://secure.travis-ci.org/pandorajs/select.png" alt="Build Status"></a></p>
-<p>模拟 select 的组件.</p>
+<p>模拟 select 的组件. 目前只兼容 chrome,适用于后台开发场景</p>
 <hr>
 <h2 id="使用方法">使用方法<a href="#使用方法" class="anchor">¶</a></h2><p>Select 继承 <a href="https://github.com/pandorajs/widget">Widget</a></p>
 <h3 id="field-为-select">field 为 select<a href="#field-为-select" class="anchor">¶</a></h3><p>html 片段</p>
@@ -211,12 +203,21 @@
     {value:<span class="string">'value1'</span>, text: <span class="string">'text1'</span>, selected: <span class="literal">true</span>},
     {value:<span class="string">'value2'</span>, text: <span class="string">'text2'</span>}
 ]</code></pre></div><p><code>value</code> <code>text</code> 均为 option 的属性</p>
-<h3 id="template-string">template <em>string</em><a href="#template-string" class="anchor">¶</a></h3><p>生成组件的模版，数据源为 model。</p>
 <h3 id="classprefix-string">classPrefix <em>string</em>_<a href="#classprefix-string" class="anchor">¶</a></h3><p>样式前缀，默认为 <code>ue-select</code></p>
 <h3 id="name-string">name <em>string</em><a href="#name-string" class="anchor">¶</a></h3><p>模拟 select 的属性，表单项需要的 name 值，等同于 <code>select.name</code></p>
 <p><strong>注意</strong>：如果 field 不是 select，那么会先在页面找 name 的 input，找不到再创建一个。</p>
 <h3 id="value-string">value <em>string</em><a href="#value-string" class="anchor">¶</a></h3><p>模拟 select 的属性，获取被选中 option 的 value 值，等同于 <code>select.value</code>, 多选时用“,”隔开</p>
 <h3 id="multiple-boolean">multiple <em>boolean</em><a href="#multiple-boolean" class="anchor">¶</a></h3><p>多选框，采用 checkbox 进行多选，field 为 select设置为multiple无效，必须在这设置</p>
+<h3 id="hasoptionall-boolean">hasOptionAll <em>boolean</em><a href="#hasoptionall-boolean" class="anchor">¶</a></h3><p>是否有”全部“选项，默认为 false</p>
+<h3 id="haslebel-boolean">hasLebel <em>boolean</em><a href="#haslebel-boolean" class="anchor">¶</a></h3><p>是否要显示 label，即 select 框说明，只适用于原生 select </p>
+<h3 id="search-boolean">search <em>boolean</em><a href="#search-boolean" class="anchor">¶</a></h3><p>是否开启搜索</p>
+<h3 id="sifteroptions-object">sifterOptions <em>object</em><a href="#sifteroptions-object" class="anchor">¶</a></h3><p>搜索配置, 开启 search，才生效</p>
+<ul>
+<li>fields 要搜索的字段集合</li>
+<li>placeholder 搜索框 placeholder</li>
+<li>emptyTemplate 搜索结果为空时，显示的文本</li>
+<li>limit 搜索条数</li>
+</ul>
 <h2 id="方法">方法<a href="#方法" class="anchor">¶</a></h2><h3 id="select-option">.select(option)<a href="#select-option" class="anchor">¶</a></h3><p>//TODO</p>
 <h2 id="事件">事件<a href="#事件" class="anchor">¶</a></h2><h3 id="change">change<a href="#change" class="anchor">¶</a></h3><p>//TODO</p>
 <h2 id="问题讨论">问题讨论<a href="#问题讨论" class="anchor">¶</a></h2>

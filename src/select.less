@@ -88,7 +88,6 @@
     position: absolute;
     z-index: 10;
     margin: -1px 0 0 0;
-    background: #ffffff;
     border: 1px solid #ccc;
     border-top: 0 none;
     -webkit-border-radius: 0 0 3px 3px;
@@ -177,16 +176,20 @@
   }
 }
 
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .ue-select-single {
 
   .input {
-
+    height: 34px;
     .selected-panel {
-      display: block;
-      float: left;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      .single-text {
+        display: inline-block;
+        .ellipsis;
+      }
     }
   }
 }
@@ -216,6 +219,7 @@
       margin: 0 3px 3px 0;
       color: #ffffff;
       cursor: pointer;
+      word-break: break-all;
       background: #1da7ee;
       border: 1px solid #0073bb;
       text-shadow: 0 1px 0 rgba(0, 51, 83, 0.3);
@@ -255,9 +259,15 @@
       display: inline-block;
       vertical-align: middle;
     }
+    .item {
+      margin: 1px 0 0 0;
+
+    }
     span {
       display: inline-block;
       vertical-align: middle;
+      .ellipsis;
+
     }
   }
 }

@@ -25,7 +25,7 @@ define(function(require, exports, module) {
    * });
    */
   var $ = require('$'),
-    Sifter = require('./sifter'),
+    Sifter = require('gallery/sifter/0.3.4/sifter'),
     itemsTemplate = require('./select-items.handlebars'),
     Widget = require('widget');
 
@@ -71,7 +71,7 @@ define(function(require, exports, module) {
       hasOptionAll: false,
 
       // 显示 label 文本，只用在根据原生的select初始的
-      hasLabel: true,
+      hasLabel: false,
 
       defaultText: '全部',
 
@@ -96,8 +96,8 @@ define(function(require, exports, module) {
       // name: null,
       // value: null,
 
-      // minWidth: null,
-      // maxWidth: null,
+      minWidth: null,
+      maxWidth: 200,
 
       template: require('./select.handlebars'),
       templateOptions: {
@@ -112,10 +112,8 @@ define(function(require, exports, module) {
       },
 
       delegates: {
-        'click': function(e) {
-          e.stopPropagation();
-        },
         'click [data-role=select]': function(e) {
+          e.stopPropagation();
           if (this.showSelect) {
             this.hideDropdown();
           } else {
@@ -147,7 +145,7 @@ define(function(require, exports, module) {
         return false;
       }
       var self = this;
-      var result = self.sifter.search($.trim(self.searchInput.val()), self.option('sifterOptions'));
+      var result = self.searchResult = self.sifter.search($.trim(self.searchInput.val()), self.option('sifterOptions'));
       var items = result.items;
       var data = [];
 
@@ -193,7 +191,7 @@ define(function(require, exports, module) {
         return;
       }*/
       var self = this;
-      var width = parseInt(self.data('minWidth'), 10) - 2;
+      var width = getStringWidth(self.role('selected'), self.data('select'));
 
       self.maxLength || (self.maxLength = getMaxLength(self.data('select')));
       self.role('single-text').hide();
@@ -206,8 +204,10 @@ define(function(require, exports, module) {
     },
 
     hidePlaceholder: function() {
-      this.role('single-text').show().text(this.text || this.option('placeholder'));
-      this.activeInput = false;
+      if (this.value === null && this.text === null) {
+        this.role('select').addClass('is-label');
+      }
+
       this.searchInput.removeAttr('placeholder');
     },
 
@@ -313,7 +313,7 @@ define(function(require, exports, module) {
           'mousedown': function(e) {
             if (!(self.is(e.target) ||
               self.$(e.target).length)) {
-              self.hideDropdown();
+              self.showSelect && self.hideDropdown();
             }
           }
         }, self.document);
@@ -380,8 +380,6 @@ define(function(require, exports, module) {
         multiple = self.option('multiple'),
         value = self.option('value') || field.attr('value') || field.val() || null;
 
-
-
       if (tagName === 'select') {
         // 是否默认选中第一个
         value = self.option('hasLabel') ? field.attr('value') : field.val();
@@ -434,15 +432,12 @@ define(function(require, exports, module) {
       var data = self.option('model');
       self.data({
         select: data,
+        maxWidth: self.option('maxWidth') + 'px',
         search: self.option('search'),
         multiple: self.option('multiple')
       });
 
       if (self.option('search')) {
-        var i, l;
-        for (i = 0, l = data.length; i < l; i++) {
-          data[i].index = i;
-        }
         self.sifter = new Sifter(data);
       }
       self.render();
@@ -469,7 +464,7 @@ define(function(require, exports, module) {
       var self = this;
 
       self.searchInput.off('keydown').on('keydown', function(e) {
-        if (self.value !== null) {
+        if (self.value !== null || self.text !== null) {
           // 禁止输入
           self.disableKey = true;
           return false;
@@ -529,8 +524,9 @@ define(function(require, exports, module) {
         data[i].selected = false;
       }
       self.data('hasSelected', false);
-      //self.value = self.field.val();
       self.value = null;
+      self.text = null;
+      self.field.val('');
       self.searchInput.val('');
     },
 
@@ -542,13 +538,14 @@ define(function(require, exports, module) {
      */
     setWidth: function() {
       var self = this,
+        WIDTH_INPUT = self.option('search') ? 6 : 0,
         minWidth = self.option('minWidth'),
         maxWidth = self.option('maxWidth'),
         calWidth;
 
       if (!minWidth) {
         // 6 是 search input 的最小宽度
-        minWidth = (self.option('multiple') ? 20 : 6) +
+        minWidth = (self.option('multiple') ? 20 : WIDTH_INPUT) +
           getStringWidth(self.role('selected'), self.data('select'));
       }
 
@@ -559,16 +556,20 @@ define(function(require, exports, module) {
           self.role('selected')
             .css('width', maxWidth);
           self.data('width', maxWidth + 'px');
+          self.role('single-text').css('max-width', maxWidth - WIDTH_INPUT);
         } else {
           self.role('selected')
             .css('min-width', minWidth)
             .css('max-width', maxWidth);
+          self.role('single-text')
+            .css('max-width', maxWidth - WIDTH_INPUT);
           self.data('minWidth', minWidth + 'px');
           self.data('maxWidth', maxWidth + 'px');
         }
       } else {
         self.role('selected')
           .css('min-width', minWidth);
+        self.role('single-text').css('max-width', minWidth - WIDTH_INPUT);
         self.data('minWidth', minWidth + 'px');
       }
     },
@@ -602,8 +603,14 @@ define(function(require, exports, module) {
       self.showSelect = true;
       if (self.option('search')) {
         self.setPlaceholder();
-        if (self.value === null) {
+        if (!self.value && !self.text) {
+          //var data = self.option('select');
           self.showPlaceholder();
+          /*var i, l;
+          for (i = 0, l = data.length; i < l; i++) {
+            data[i].index = i;
+          }*/
+          self.renderDropdown(self.data('select'));
         }
       }
     },
@@ -616,28 +623,29 @@ define(function(require, exports, module) {
      */
     hideDropdown: function() {
       var self = this;
-
       if (self.role('dropdown').is(':hidden')) {
         return;
       }
-
+      self.showSelect = false;
       self.role('select')
         .removeClass('focus input-active dropdown-active');
 
       if (!self.option('multiple')) {
+        if (self.option('search')) {
+          self.activeInput = false;
+          self.setPlaceholder();
+          self.hidePlaceholder();
+        }
         self.role('selected').removeClass('is-label');
-        self.role('single-text').text(self.text || undefined);
-        self.activeInput ? self.role('select').addClass('input-active') : self.role('single-text').show();
+        self.role('single-text')
+          .show()
+          .text(self.text || self.option('placeholder'));
       }
 
       self.role('dropdown')
         .hide();
-      self.showSelect = false;
-      if (self.option('search')) {
-        self.activeInput = false;
-        self.setPlaceholder();
-        self.hidePlaceholder();
-      }
+
+
     },
 
     /**
@@ -722,6 +730,7 @@ define(function(require, exports, module) {
 
       o = {
         text: option.text,
+        index: i,
         value: option.value,
         selected: !selectedFound && selected,
         disabled: option.disabled
@@ -742,7 +751,7 @@ define(function(require, exports, module) {
     var i, l;
 
     for (i = 0, l = model.length; i < l; i++) {
-
+      model[i].index = i;
       if (value !== null) {
         model[i].selected = (value === model[i].value);
       }

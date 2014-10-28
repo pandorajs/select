@@ -7,3 +7,4 @@ doc
 _site
 npm-debug.log
 coverage
+.grunt

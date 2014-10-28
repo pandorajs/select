@@ -3,7 +3,7 @@
 ---
 [![Build Status](https://secure.travis-ci.org/pandorajs/select.png)](https://travis-ci.org/pandorajs/select)
 
-模拟 select 的组件.
+模拟 select 的组件. 目前只兼容 chrome,适用于后台开发场景
 
 ---
 
@@ -79,10 +79,6 @@ model 的格式为
 
 `value` `text` 均为 option 的属性
 
-### template *string*
-
-生成组件的模版，数据源为 model。
-
 
 ### classPrefix *string*_
 
@@ -101,6 +97,27 @@ model 的格式为
 ### multiple *boolean*
 
 多选框，采用 checkbox 进行多选，field 为 select设置为multiple无效，必须在这设置
+
+### hasOptionAll *boolean*
+
+是否有”全部“选项，默认为 false
+
+### hasLebel *boolean*
+
+是否要显示 label，即 select 框说明，只适用于原生 select 
+
+### search *boolean*
+
+是否开启搜索
+
+### sifterOptions *object*
+
+搜索配置, 开启 search，才生效
+
+* fields 要搜索的字段集合
+* placeholder 搜索框 placeholder
+* emptyTemplate 搜索结果为空时，显示的文本
+* limit 搜索条数
 
 ## 方法
 

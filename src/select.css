@@ -78,7 +78,6 @@
   position: absolute;
   z-index: 10;
   margin: -1px 0 0 0;
-  background: #ffffff;
   border: 1px solid #ccc;
   border-top: 0 none;
   -webkit-border-radius: 0 0 3px 3px;
@@ -154,9 +153,16 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
-.ue-select-single .input .selected-panel {
-  display: block;
-  float: left;
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ue-select-single .input {
+  height: 38px;
+}
+.ue-select-single .input .selected-panel .single-text {
+  display: inline-block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -180,6 +186,7 @@
   margin: 0 3px 3px 0;
   color: #ffffff;
   cursor: pointer;
+  word-break: break-all;
   background: #1da7ee;
   border: 1px solid #0073bb;
   text-shadow: 0 1px 0 rgba(0, 51, 83, 0.3);
@@ -215,7 +222,13 @@
   display: inline-block;
   vertical-align: middle;
 }
+.ue-select-multiple .dropdown .item {
+  margin: 1px 0 0 0;
+}
 .ue-select-multiple .dropdown span {
   display: inline-block;
   vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

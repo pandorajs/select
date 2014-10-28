@@ -24,6 +24,7 @@ trigger 为 select，并默认选中 option2
 seajs.use(['select'], function(Select) {
     new Select({
         //search: true,
+        minWidth: 50,
         field: '#example1',
         //value: '1'
     });
@@ -101,10 +102,11 @@ seajs.use(['select'], function(Select) {
         field: '#example4',
         //value: '2',
         multiple: true,
+        maxWidth: 200,
         load: function(callback){
             setTimeout(function() {
               callback([
-                {value:'0', text:'blue template'},
+                {value:'0', text:'blue templateaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'},
                 {value:'1', text:'red template'},
                 {value:'2', text:'green template'}
               ]);
@@ -127,11 +129,12 @@ seajs.use(['select'], function(Select) {
         field: '#example5',
         //value: '2',
         search: true,
+        maxWidth: 100,
         hasOptionAll: true,
         load: function(callback){
             setTimeout(function() {
               callback([
-                {value:'0', text:'blue template'},
+                {value:'0', text:'blue template,longtemplatetemplatetemplatetemplatetemplatetemplatetemplate'},
                 {value:'1', text:'red template'},
                 {value:'2', text:'green template'}
               ]);

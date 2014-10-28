@@ -37,6 +37,117 @@ define(function(require, exports, module) {
       expect(select.role('item').length).to.be(1);
     });
 
+    describe('Method', function() {
+      it('keyBack', function () {
+        select = new Select({
+          field: '#test',
+          search: true,
+          load: function(callback) {
+            callback([
+              {value:'0', text:'blue template'},
+              {value:'1', text:'red template'},
+              {value:'2', text:'green template'}
+            ]);
+          }
+        });
+
+        select.role('select').trigger('click');
+        select.keyBack();
+
+        expect(select.role('item').length).to.be(3);
+        expect(select.role('single-text').is(':visible')).to.be(false);
+        expect(select.value).to.be(null);
+      });
+
+      it('clearValue', function () {
+        select = new Select({
+          field: '#test',
+          search: true,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        select.role('select').trigger('click');
+        select.role('item').eq(1).trigger('click');
+
+        select.clearValue();
+        expect(select.data('select')[0].selected).to.be(false);
+        expect(select.value).to.be(null);
+        expect(select.text).to.be(null);
+        expect(select.searchInput.val()).to.be('');
+        expect(select.field.val()).to.be('');
+      });
+
+      it('showDropdown and hideDropdown', function () {
+        select = new Select({
+          field: '#test',
+          search: true,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        select.showDropdown();
+        expect(select.role('dropdown').is(':visible')).to.be(true);
+        expect(select.showSelect).to.be(true);
+
+        select.hideDropdown();
+        expect(select.role('dropdown').is(':visible')).to.be(false);
+        expect(select.showSelect).to.be(false);
+      });
+
+      it('setValue and search is false', function () {
+        select = new Select({
+          field: '#test',
+          hasOptionAll: true,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        select.setValue('');
+        expect(select.field.val()).to.be('');
+        expect(select.value).to.be(null);
+
+        select.setValue('1');
+        expect(select.field.val()).to.be('1');
+
+        select.setValue('2');
+        expect(select.field.val()).to.be('2');
+      });
+
+      it('setValue and search is true', function () {
+        select = new Select({
+          field: '#test',
+          //hasOptionAll: true,
+          search: true,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        select.setValue('');
+        expect(select.field.val()).to.be('');
+        expect(select.value).to.be(null);
+
+        select.setValue('1');
+        expect(select.field.val()).to.be('1');
+
+        select.setValue('2');
+        expect(select.field.val()).to.be('2');
+      });
+
+    });
+
     describe('Options', function() {
       it('search is true', function () {
         select = new Select({
@@ -63,6 +174,20 @@ define(function(require, exports, module) {
         });
 
         expect(select.role('placeholder').length).to.be(0);
+      });
+
+      it('minWidth, and less than maxWidth', function () {
+        select = new Select({
+          field: '#test',
+          minWidth: 50,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        expect(select.role('selected').css('min-width')).to.be('50px');
       });
 
       it('async load', function () {
@@ -115,7 +240,7 @@ define(function(require, exports, module) {
         expect(select.role('dropdown').is(':visible')).to.be(false);
       });
 
-      it('single select value', function () {
+      it('select single value', function () {
         select = new Select({
           field: '#test',
           search: true,
@@ -126,14 +251,13 @@ define(function(require, exports, module) {
           ]
         });
 
-        select.role('select').trigger('click');
-        select.role('item').eq(1).trigger('click');
+        select.showDropdown();
+        select.setValue('2')
+        expect(select.field.val()).to.be('2');
 
-        expect(select.role('dropdown').is(':visible')).to.be(false);
-        expect(select.field.val()).to.be('1');
       });
 
-      it('multiple select value', function () {
+      it('select multiple value', function () {
         select = new Select({
           field: '#test',
           multiple: true,
@@ -155,91 +279,7 @@ define(function(require, exports, module) {
 
     });
 
-    describe('Method', function() {
-      it('keyBack', function () {
-        select = new Select({
-          field: '#test',
-          search: true,
-          load: function(callback) {
-            callback([
-              {value:'0', text:'blue template'},
-              {value:'1', text:'red template'},
-              {value:'2', text:'green template'}
-            ]);
-          }
-        });
 
-        select.role('select').trigger('click');
-        select.keyBack();
-
-        expect(select.role('item').length).to.be(3);
-        expect(select.role('single-text').is(':visible')).to.be(false);
-        expect(select.value).to.be(null);
-      });
-
-      it('clearValue', function () {
-        select = new Select({
-          field: '#test',
-          search: true,
-          model: [
-            {value:'0', text:'blue template'},
-            {value:'1', text:'red template'},
-            {value:'2', text:'green template'}
-          ]
-        });
-
-        select.role('select').trigger('click');
-        select.role('item').eq(1).trigger('click');
-
-        select.clearValue();
-        expect(select.data('select')[0].selected).to.be(false);
-        expect(select.value).to.be(null);
-        expect(select.searchInput.val()).to.be('');
-      });
-
-      it('showDropdown and hideDropdown', function () {
-        select = new Select({
-          field: '#test',
-          search: true,
-          model: [
-            {value:'0', text:'blue template'},
-            {value:'1', text:'red template'},
-            {value:'2', text:'green template'}
-          ]
-        });
-
-        select.showDropdown();
-        expect(select.role('dropdown').is(':visible')).to.be(true);
-        expect(select.showSelect).to.be(true);
-
-        select.hideDropdown();
-        expect(select.role('dropdown').is(':visible')).to.be(false);
-        expect(select.showSelect).to.be(false);
-      });
-
-      it('setValue', function () {
-        select = new Select({
-          field: '#test',
-          hasOptionAll: true,
-          model: [
-            {value:'0', text:'blue template'},
-            {value:'1', text:'red template'},
-            {value:'2', text:'green template'}
-          ]
-        });
-
-        select.setValue('');
-        expect(select.field.val()).to.be('');
-        expect(select.value).to.be(null);
-
-        select.setValue('1');
-        expect(select.field.val()).to.be('1');
-
-        select.setValue('2');
-        expect(select.field.val()).to.be('2');
-      });
-
-    });
 
     describe('search with sifter', function() {
       it('show search input', function () {

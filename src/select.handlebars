@@ -26,9 +26,7 @@
 <div class="dropdown" data-role="dropdown" style="display:none">
   <div class="dropdown-content">
     {{#if multiple}}
-      {{#each select}}
-        {{> multiItem}}
-      {{/each}}
+      {{> multiItem}}
     {{else}}
       {{#each select}}
         {{> singleItem}}

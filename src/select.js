@@ -378,17 +378,22 @@ define(function(require, exports, module) {
         tagName = self.tagName,
         model = self.option('model'),
         multiple = self.option('multiple'),
-        value = self.option('value') || field.attr('value') || field.val() || null;
+        value = self.option('value') || field.val() || null;
 
       if (tagName === 'select') {
-        // 是否默认选中第一个
-        value = self.option('hasLabel') ? field.attr('value') : field.val();
+        //self.option('hasLabel') && (value = field.attr('value'));
+        var curValue = field.attr('value');
+        if (curValue) {
+          value = curValue;
+        } else if (self.option('hasLabel')) {
+          value = null;
+        }
         // option 设置 model 优先级高
         if (model && model.length) {
           self.data('select', completeModel(model, value));
         } else {
-          self.data('select', convertSelect(field[0], value));
-          self.option('model', convertSelect(field[0], value));
+          model = convertSelect(field[0], value);
+          self.data('select', model);
         }
       } else {
         if (!model || !model.length) {
@@ -401,7 +406,7 @@ define(function(require, exports, module) {
           });
         }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value));
+        self.data('select', completeModel(model, value, multiple));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -747,16 +752,21 @@ define(function(require, exports, module) {
   }
 
   // 补全 model 对象
-  function completeModel(model, value) {
+  function completeModel(model, value, multiple) {
     var i, l;
 
     for (i = 0, l = model.length; i < l; i++) {
-      model[i].index = i;
-      if (value !== null) {
-        model[i].selected = (value === model[i].value);
-      }
-    }
+      var selected;
 
+      if (multiple) {
+        selected = value !== null && value.indexOf(model[i].value) !== -1;
+      } else {
+        selected = value !== null && value === model[i].value;
+      }
+
+      model[i].index = i;
+      model[i].selected = selected;
+    }
     return model;
   }
 

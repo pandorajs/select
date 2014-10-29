@@ -22,24 +22,10 @@ module.exports = function(grunt) {
     sea: 'sea-modules/<%= idleading %>',
 
     jshint: {
-      files: ['src/*.js','!src/sifter.js'],
+      files: ['src/*.js'],
       options: {
         jshintrc: true
       }
-    },
-
-    qunit: {
-      options: {
-        '--web-security': 'no',
-        coverage: {
-          baseUrl: './',
-          src: ['src/*.js'],
-          instrumentedFiles: 'temp/',
-          lcovReport: 'report/',
-          linesThresholdPct: 60
-        }
-      },
-      all: ['test/*.html']
     },
 
     coveralls: {
@@ -47,9 +33,23 @@ module.exports = function(grunt) {
         force: true
       },
       all: {
-        src: 'report/*.info'
+        src: 'report/**/*.info'
       }
     },
+
+    coverage: {
+      options: {
+        thresholds: {
+          'statements': 60,
+          'branches': 50,
+          'lines': 60,
+          'functions': 60
+        },
+        dir: 'coverage',
+        root: 'test'
+      }
+    },
+
 
     karma: {
       unit: {

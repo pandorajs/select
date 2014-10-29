@@ -8,13 +8,18 @@ define(function(require, exports, module) {
   var $ = require('$');
 
   describe('Select', function() {
-    var input, select;
+    var input, select, nativeSelect;
 
     beforeEach(function () {
       input = $('<input id="test" type="text" value="" />').appendTo(document.body);
+      nativeSelect = $('<select id="test1"></select>').appendTo(document.body);
+      nativeSelect.append('<option value="0">text1</option>');
+      nativeSelect.append('<option value="1">text2</option>');
+      nativeSelect.append('<option value="2">text3</option>');
     });
     afterEach(function () {
       input.remove();
+      nativeSelect.remove();
       if (select) {
         select.destroy();
         select = null;
@@ -36,6 +41,43 @@ define(function(require, exports, module) {
       select.role('select').trigger('click');
       expect(select.role('item').length).to.be(1);
     });
+
+    it('native select init1', function () {
+      nativeSelect.attr('value', '2');
+      select = new Select({
+        field: '#test1'
+      });
+      expect(select.field.val()).to.be('2');
+    });
+
+    it('native select init2', function () {
+      select = new Select({
+        field: '#test1'
+      });
+      expect(select.field.val()).to.be('0');
+    });
+
+    it('native select init3', function () {
+      select = new Select({
+        hasLabel: true,
+        field: '#test1'
+      });
+
+      expect(select.role('selected').text().indexOf('请选择') > -1).to.be(true);
+      expect(select.field.val()).to.be(null);
+    });
+
+    it('native select init4', function () {
+      nativeSelect.attr('value','2');
+      select = new Select({
+        hasLabel: true,
+        field: '#test1'
+      });
+      expect(select.field.val()).to.be('2');
+    });
+
+
+
 
     describe('Method', function() {
       it('keyBack', function () {
@@ -122,6 +164,22 @@ define(function(require, exports, module) {
         select.setValue('2');
         expect(select.field.val()).to.be('2');
       });
+
+      it('initAttrs and multiple is true', function () {
+        input.val('1,2');
+        select = new Select({
+          field: '#test',
+          multiple: true,
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+
+        expect(select.role('selected').children().length).to.be(2);
+      });
+
 
       it('setValue and search is true', function () {
         select = new Select({
@@ -278,8 +336,6 @@ define(function(require, exports, module) {
       });
 
     });
-
-
 
     describe('search with sifter', function() {
       it('show search input', function () {

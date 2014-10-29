@@ -28,7 +28,7 @@
     "url": "git://github.com/pandorajs/select.git"
   },
   "scripts": {
-    "test": "grunt qunit"
+    "test": "grunt test"
   },
   "engines": {
     "node": ">= 0.8.0"
@@ -47,6 +47,7 @@
     "grunt-contrib-yuidoc": "*",
     "grunt-coveralls": "*",
     "grunt-gh-pages": "^0.9.1",
+    "grunt-istanbul-coverage": "^0.1.0",
     "grunt-karma": "^0.8.3",
     "grunt-spawn": "^1.1.62",
     "karma": "^0.12.23",

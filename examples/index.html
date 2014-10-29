@@ -184,6 +184,7 @@ seajs.use('select.css');
     new Select({
         //search: true,
         minWidth: 50,
+        hasLabel: true,
         field: '#example1',
         //value: '1'
     });
@@ -191,6 +192,7 @@ seajs.use('select.css');
     <span class="keyword">new</span> Select({
         <span class="comment">//search: true,</span>
         minWidth: <span class="number">50</span>,
+        hasLabel: <span class="literal">true</span>,
         field: <span class="string">'#example1'</span>,
         <span class="comment">//value: '1'</span>
     });
@@ -260,20 +262,20 @@ seajs.use('select.css');
 <blockquote>
 <p><strong>注：多选只支持在js配置mulitple</strong></p>
 </blockquote>
-<div class="nico-insert-code"><input id="example4" name="theme"></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"example4"</span> <span class="attribute">name</span>=<span class="value">"theme"</span>&gt;</span></code></pre></div><script>seajs.use(['select'], function(Select) {
+<div class="nico-insert-code"><input id="example4" name="theme" value="1,2"></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"example4"</span> <span class="attribute">name</span>=<span class="value">"theme"</span> <span class="attribute">value</span>=<span class="value">"1,2"</span>&gt;</span></code></pre></div><script>seajs.use(['select'], function(Select) {
     new Select({
         field: '#example4',
         //value: '2',
         multiple: true,
         maxWidth: 200,
         load: function(callback){
-            setTimeout(function() {
+            //setTimeout(function() {
               callback([
                 {value:'0', text:'blue templateaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'},
                 {value:'1', text:'red template'},
                 {value:'2', text:'green template'}
               ]);
-            }, 0);
+            //}, 0);
         }
     });
 });</script><div class="highlight"><pre><code class="javascript">seajs.use([<span class="string">'pandora/select/1.1.0/select'</span>], <span class="keyword">function</span>(Select) {
@@ -283,13 +285,13 @@ seajs.use('select.css');
         multiple: <span class="literal">true</span>,
         maxWidth: <span class="number">200</span>,
         load: <span class="keyword">function</span>(callback){
-            setTimeout(<span class="keyword">function</span>() {
+            <span class="comment">//setTimeout(function() {</span>
               callback([
                 {value:<span class="string">'0'</span>, text:<span class="string">'blue templateaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'</span>},
                 {value:<span class="string">'1'</span>, text:<span class="string">'red template'</span>},
                 {value:<span class="string">'2'</span>, text:<span class="string">'green template'</span>}
               ]);
-            }, <span class="number">0</span>);
+            <span class="comment">//}, 0);</span>
         }
     });
 });</code></pre></div><h2 id="异步加载数据，开启-search">异步加载数据，开启 search<a href="#异步加载数据，开启-search" class="anchor">¶</a></h2><div class="nico-insert-code"><input id="example5" name="theme"></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"example5"</span> <span class="attribute">name</span>=<span class="value">"theme"</span>&gt;</span></code></pre></div><script>seajs.use(['select'], function(Select) {

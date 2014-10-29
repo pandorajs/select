@@ -53,6 +53,7 @@
   if (contain(query, 'dist')) {
     srcdir = 'dist';
     
+      seajs.use("../dist/select-items.handlebars.js");
   } else if (contain(query, 'cov')) {
     srcdir = 'src-cov';
   }

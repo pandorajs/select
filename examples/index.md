@@ -25,6 +25,7 @@ seajs.use(['select'], function(Select) {
     new Select({
         //search: true,
         minWidth: 50,
+        hasLabel: true,
         field: '#example1',
         //value: '1'
     });
@@ -93,7 +94,7 @@ trigger 为 input, 如有设置value值，能过js配置的优先级高， 同�
 > **注：多选只支持在js配置mulitple**
 
 ````html
-<input id="example4" name="theme">
+<input id="example4" name="theme" value="1,2">
 ````
 
 ````javascript
@@ -104,13 +105,13 @@ seajs.use(['select'], function(Select) {
         multiple: true,
         maxWidth: 200,
         load: function(callback){
-            setTimeout(function() {
+            //setTimeout(function() {
               callback([
                 {value:'0', text:'blue templateaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'},
                 {value:'1', text:'red template'},
                 {value:'2', text:'green template'}
               ]);
-            }, 0);
+            //}, 0);
         }
     });
 });

@@ -609,12 +609,7 @@ define(function(require, exports, module) {
       if (self.option('search')) {
         self.setPlaceholder();
         if (!self.value && !self.text) {
-          //var data = self.option('select');
           self.showPlaceholder();
-          /*var i, l;
-          for (i = 0, l = data.length; i < l; i++) {
-            data[i].index = i;
-          }*/
           self.renderDropdown(self.data('select'));
         }
       }
@@ -757,11 +752,11 @@ define(function(require, exports, module) {
 
     for (i = 0, l = model.length; i < l; i++) {
       var selected;
-
+      var curValue = model[i].value + '';
       if (multiple) {
-        selected = value !== null && value.indexOf(model[i].value) !== -1;
+        selected = value !== null && value.indexOf(curValue) !== -1;
       } else {
-        selected = value !== null && value === model[i].value;
+        selected = value !== null && value === curValue;
       }
 
       model[i].index = i;

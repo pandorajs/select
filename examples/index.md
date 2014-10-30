@@ -14,6 +14,7 @@ trigger 为 select，并默认选中 option2
 
 ````html
 <select id="example1">
+    <option value="">全部</option>
     <option value="0">Anna</option>
     <option value="1">na na</option>
     <option value="2">绿色</option>

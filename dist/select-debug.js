@@ -307,8 +307,13 @@ define("pandora/select/1.1.0/select-debug", [ "$-debug", "gallery/sifter/0.3.4/s
         initAttrs: function() {
             var self = this, selectName, selectElem, field = self.field, tagName = self.tagName, model = self.option("model"), multiple = self.option("multiple"), value = self.option("value") || field.val() || null;
             if (tagName === "select") {
-                // 防止默认选中第一个
-                self.option("hasLabel") && (value = field.attr("value"));
+                //self.option('hasLabel') && (value = field.attr('value'));
+                var curValue = field.attr("value");
+                if (curValue) {
+                    value = curValue;
+                } else if (self.option("hasLabel")) {
+                    value = null;
+                }
                 // option 设置 model 优先级高
                 if (model && model.length) {
                     self.data("select", completeModel(model, value));
@@ -952,12 +957,28 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
             return '<input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>';
         }
         function program15(depth0, data) {
-            var buffer = "", stack1;
-            buffer += "\n      ";
+            var buffer = "", stack1, helper;
+            buffer += '\n      <span class="single-text" data-role="single-text">';
+            if (helper = helpers.label) {
+                stack1 = helper.call(depth0, {
+                    hash: {},
+                    data: data
+                });
+            } else {
+                helper = depth0 && depth0.label;
+                stack1 = typeof helper === functionType ? helper.call(depth0, {
+                    hash: {},
+                    data: data
+                }) : helper;
+            }
+            if (stack1 || stack1 === 0) {
+                buffer += stack1;
+            }
+            buffer += "</span>";
             stack1 = helpers["if"].call(depth0, depth0 && depth0.search, {
                 hash: {},
-                inverse: self.program(18, program18, data),
-                fn: self.program(16, program16, data),
+                inverse: self.noop,
+                fn: self.program(13, program13, data),
                 data: data
             });
             if (stack1 || stack1 === 0) {
@@ -966,49 +987,7 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
             buffer += "\n    ";
             return buffer;
         }
-        function program16(depth0, data) {
-            var buffer = "", stack1, helper;
-            buffer += '\n        <span class="single-text" data-role="single-text">';
-            if (helper = helpers.label) {
-                stack1 = helper.call(depth0, {
-                    hash: {},
-                    data: data
-                });
-            } else {
-                helper = depth0 && depth0.label;
-                stack1 = typeof helper === functionType ? helper.call(depth0, {
-                    hash: {},
-                    data: data
-                }) : helper;
-            }
-            if (stack1 || stack1 === 0) {
-                buffer += stack1;
-            }
-            buffer += '</span><input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>\n      ';
-            return buffer;
-        }
-        function program18(depth0, data) {
-            var buffer = "", stack1, helper;
-            buffer += "\n        ";
-            if (helper = helpers.label) {
-                stack1 = helper.call(depth0, {
-                    hash: {},
-                    data: data
-                });
-            } else {
-                helper = depth0 && depth0.label;
-                stack1 = typeof helper === functionType ? helper.call(depth0, {
-                    hash: {},
-                    data: data
-                }) : helper;
-            }
-            if (stack1 || stack1 === 0) {
-                buffer += stack1;
-            }
-            buffer += "\n      ";
-            return buffer;
-        }
-        function program20(depth0, data) {
+        function program17(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n      ";
             stack1 = self.invokePartial(partials.multiItem, "multiItem", depth0, helpers, partials, data);
@@ -1018,13 +997,13 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
             buffer += "\n    ";
             return buffer;
         }
-        function program22(depth0, data) {
+        function program19(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n      ";
             stack1 = helpers.each.call(depth0, depth0 && depth0.select, {
                 hash: {},
                 inverse: self.noop,
-                fn: self.program(23, program23, data),
+                fn: self.program(20, program20, data),
                 data: data
             });
             if (stack1 || stack1 === 0) {
@@ -1033,7 +1012,7 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
             buffer += "\n    ";
             return buffer;
         }
-        function program23(depth0, data) {
+        function program20(depth0, data) {
             var buffer = "", stack1;
             buffer += "\n        ";
             stack1 = self.invokePartial(partials.singleItem, "singleItem", depth0, helpers, partials, data);
@@ -1105,8 +1084,8 @@ define("pandora/select/1.1.0/select-debug.handlebars", [ "gallery/handlebars/1.3
         buffer += '\n  </div>\n</div>\n<div class="dropdown" data-role="dropdown" style="display:none">\n  <div class="dropdown-content">\n    ';
         stack1 = helpers["if"].call(depth0, depth0 && depth0.multiple, {
             hash: {},
-            inverse: self.program(22, program22, data),
-            fn: self.program(20, program20, data),
+            inverse: self.program(19, program19, data),
+            fn: self.program(17, program17, data),
             data: data
         });
         if (stack1 || stack1 === 0) {

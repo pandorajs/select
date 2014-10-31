@@ -56,6 +56,12 @@
   if (contain(query, 'dist')) {
     srcdir = 'dist';
     
+      seajs.use("./dist/select-items.handlebars.js");
+      seajs.use("./dist/select-multi-item.handlebars.js");
+      seajs.use("./dist/select-single-item.handlebars.js");
+      seajs.use("./dist/select.css.js");
+      seajs.use("./dist/select.handlebars.js");
+      seajs.use("./dist/select.js");
   } else if (contain(query, 'cov')) {
     srcdir = 'src-cov';
   }

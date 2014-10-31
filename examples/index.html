@@ -56,6 +56,12 @@
   if (contain(query, 'dist')) {
     srcdir = 'dist';
     
+      seajs.use("../dist/select-items.handlebars.js");
+      seajs.use("../dist/select-multi-item.handlebars.js");
+      seajs.use("../dist/select-single-item.handlebars.js");
+      seajs.use("../dist/select.css.js");
+      seajs.use("../dist/select.handlebars.js");
+      seajs.use("../dist/select.js");
   } else if (contain(query, 'cov')) {
     srcdir = 'src-cov';
   }
@@ -173,10 +179,12 @@ seajs.use('select.css');
 
 <h2 id="可根据原生的-select-初始化">可根据原生的 select 初始化<a href="#可根据原生的-select-初始化" class="anchor">¶</a></h2><p>trigger 为 select，并默认选中 option2</p>
 <div class="nico-insert-code"><select id="example1">
+    <option value="">全部</option>
     <option value="0">Anna</option>
     <option value="1">na na</option>
     <option value="2">绿色</option>
 </select></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">select</span> <span class="attribute">id</span>=<span class="value">"example1"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">""</span>&gt;</span>全部<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
     <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"0"</span>&gt;</span>Anna<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
     <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"1"</span>&gt;</span>na na<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
     <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"2"</span>&gt;</span>绿色<span class="tag">&lt;/<span class="title">option</span>&gt;</span>

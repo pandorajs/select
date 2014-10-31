@@ -15,7 +15,7 @@ module.exports = function(config) {
       }
     },
 
-    plugins: ['karma-mocha','karma-coverage','karma-phantomjs-launcher'],
+    plugins: ['karma-mocha','karma-mocha-reporter','karma-coverage','karma-phantomjs-launcher'],
     files: [
       {pattern:'vendor/seajs/sea.js', included: true},
       {pattern:'vendor/seajs/seajs-text.js', included: true},
@@ -27,7 +27,7 @@ module.exports = function(config) {
       './test/test-main.js'
     ],
     // coverage reporter generates the coverage
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress','mocha', 'coverage'],
 
     preprocessors: {
       // source files, that you wanna generate coverage for

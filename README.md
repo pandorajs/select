@@ -1,9 +1,7 @@
 # Select
 
 ---
-[![Build Status](https://secure.travis-ci.org/pandorajs/select.png)](https://travis-ci.org/pandorajs/select)
-
-[![Coverage Status](https://coveralls.io/repos/lynzz/select/badge.png)](https://coveralls.io/r/lynzz/select)
+[![Build Status](https://secure.travis-ci.org/pandorajs/select.png)](https://travis-ci.org/pandorajs/select) [![Coverage Status](https://coveralls.io/repos/lynzz/select/badge.png)](https://coveralls.io/r/lynzz/select)
 
 模拟 select 的组件. 目前只兼容 chrome,适用于后台开发场景
 

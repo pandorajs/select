@@ -4,7 +4,7 @@ node_js:
   - 0.10
 
 install:
-  - npm install -g grunt-cli
+  - npm install -g grunt-cli karma-cli
   - npm install
 
 script:

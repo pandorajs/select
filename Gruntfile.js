@@ -31,7 +31,7 @@ module.exports = function(grunt) {
     coveralls: {
       options: {
         debug: true,
-        coverage_dir: 'report',
+        coverage_dir: 'test/coverage',
         dryRun: true,
         force: true,
         recursive: true
@@ -41,10 +41,10 @@ module.exports = function(grunt) {
     coverage: {
       options: {
         thresholds: {
-          'statements': 60,
-          'branches': 50,
-          'lines': 60,
-          'functions': 60
+          'statements': 80,
+          'branches': 80,
+          'lines': 80,
+          'functions': 80
         },
         dir: 'coverage',
         root: 'test'

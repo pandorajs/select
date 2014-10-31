@@ -44,7 +44,7 @@ module.exports = function(config) {
           dir: 'test/coverage'
         }, {
           type: 'lcov',
-          dir: 'report/'
+          dir: 'test/coverage'
         }
       ]
     }

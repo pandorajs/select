@@ -8,7 +8,7 @@ install:
   - npm install
 
 script:
-  - grunt test
+  - karma start
 
 after_success:
   - grunt coveralls

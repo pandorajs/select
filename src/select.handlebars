@@ -1,5 +1,5 @@
 <div class="input {{#if hasSelected}}has-items{{else}}is-label{{/if}}" data-role="select">
-  <span data-role="selected" style="min-width:{{minWidth}};max-width:{{maxWidth}};width:{{width}}">
+  <div class="selected-panel" data-role="selected" style="min-width:{{minWidth}};max-width:{{maxWidth}};width:{{width}}">
     {{#if hasSelected}}
       {{#if multiple}}
         {{#each select}}
@@ -10,21 +10,19 @@
       {{else}}
         {{#each select}}
           {{#if selected}}
-            {{{text}}}
+            <span class="single-text" data-role="single-text">{{{text}}}</span>{{#if ../../search}}<input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>{{/if}}
           {{/if}}
         {{/each}}
       {{/if}}
     {{else}}
-      {{{label}}}
+      <span class="single-text" data-role="single-text">{{{label}}}</span>{{#if search}}<input type="text" data-role="placeholder" class="placeholder" autocomplete="off"/>{{/if}}
     {{/if}}
-  </span>
+  </div>
 </div>
 <div class="dropdown" data-role="dropdown" style="display:none">
   <div class="dropdown-content">
     {{#if multiple}}
-      {{#each select}}
-        {{> multiItem}}
-      {{/each}}
+      {{> multiItem}}
     {{else}}
       {{#each select}}
         {{> singleItem}}

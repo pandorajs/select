@@ -4,3 +4,7 @@ gh-pages
 report
 dist
 doc
+_site
+npm-debug.log
+coverage
+.grunt

@@ -25,7 +25,17 @@ define(function(require, exports, module) {
    * });
    */
   var $ = require('$'),
+    Sifter = require('gallery/sifter/0.3.4/sifter'),
+    itemsTemplate = require('./select-items.handlebars'),
     Widget = require('widget');
+
+  var KEY_MAP = {
+    BACKSPACE: 8,
+    ENTER: 13,
+    UP: 38,
+    DOWN: 40
+  };
+  var SELECTED = 'selected';
 
   /**
    * 模拟 select 组件
@@ -53,7 +63,24 @@ define(function(require, exports, module) {
       // 分隔符，多选时才有用
       delimiter: ',',
 
-      placeholder: '',
+      // select label 文本
+      placeholder: '请选择',
+
+      search: false,
+
+      hasOptionAll: false,
+
+      // 显示 label 文本，只用在根据原生的select初始的
+      hasLabel: false,
+
+      defaultText: '全部',
+
+      sifterOptions: {
+        fields: ['text'],
+        placeholder: '请输入...',
+        emptyTemplate: '无匹配项',
+        limit: 1000
+      },
 
       // input 或 select 元素，必填
       // field: null,
@@ -69,10 +96,8 @@ define(function(require, exports, module) {
       // name: null,
       // value: null,
 
-      // minWidth: null,
-      // maxWidth: null,
-
-      selectedIndex: 0,
+      minWidth: null,
+      maxWidth: 200,
 
       template: require('./select.handlebars'),
       templateOptions: {
@@ -87,12 +112,16 @@ define(function(require, exports, module) {
       },
 
       delegates: {
-        'click': function(e) {
-          e.stopPropagation();
-        },
         'click [data-role=select]': function(e) {
-          this.showDropdown();
+          e.stopPropagation();
+          if (this.showSelect) {
+            this.hideDropdown();
+          } else {
+            this.showDropdown();
+            this.role('placeholder').focus();
+          }
         },
+        'keyup [data-role=placeholder]': 'onKey',
         'click [data-role=item]': function(e) {
           if (e.currentTarget.tagName === 'LABEL') {
             e.stopPropagation();
@@ -110,13 +139,157 @@ define(function(require, exports, module) {
       }
     },
 
+    // sifter 查询
+    search: function() {
+      if (this.disableKey) {
+        return false;
+      }
+      var self = this;
+      var result = self.searchResult = self.sifter.search($.trim(self.searchInput.val()), self.option('sifterOptions'));
+      var items = result.items;
+      var data = [];
+
+      // 按原始数据顺序排序
+      items.sort(function(obj1, obj2){
+        var v1 = obj1.id;
+        var v2 = obj2.id;
+
+        if (v1 < v2) {
+          return -1;
+        } else if (v1 > v2) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      $.each(items, function(i, n) {
+        var item = self.sifter.items[n.id];
+        var reg = new RegExp(result.query, 'ig');
+
+        item.item =  item.text.replace(reg, function(query) {
+          return '<span class="highlight">' + query + '</span>';
+        });
+        data.push(item);
+      });
+
+      self.renderDropdown(data);
+    },
+
+    // 按了后退键
+    keyBack: function() {
+      this.disableKey = false;
+      this.search();
+      if (this.searchInput.val() === '') {
+        this.showPlaceholder();
+      }
+
+    },
+
+    // 显示 sifter 输入框
+    showPlaceholder: function() {
+      /*if (this.text === this.option('defaultText')) {
+        return;
+      }*/
+      var self = this;
+      var width = getStringWidth(self.role('selected'), self.data('select'));
+
+      self.maxLength || (self.maxLength = getMaxLength(self.data('select')));
+      self.role('single-text').hide();
+      self.activeInput = true;
+      self.clearValue();
+      self.searchInput
+        .css('width', width)
+        .attr('maxlength', self.maxLength)
+        .attr('placeholder', self.option('sifterOptions/placeholder'));
+    },
+
+    hidePlaceholder: function() {
+      if (this.value === null && this.text === null) {
+        this.role('select').addClass('is-label');
+      }
+
+      this.searchInput.removeAttr('placeholder');
+    },
+
+    // 按了 enter 键
+    keyEnter: function(e) {
+      this.role('item').each(function() {
+        if ($(this).hasClass(SELECTED)) {
+          $(this).trigger('click');
+          return false;
+        }
+      });
+    },
+
+    // 按了向上键
+    keyUp: function() {
+      var index;
+      var $item = this.role('item');
+
+      $item.each(function(i) {
+        if ($(this).hasClass(SELECTED) && i > 0) {
+          index = i - 1;
+          $(this).removeClass(SELECTED);
+          return false;
+        }
+      });
+      $item.eq(index).addClass(SELECTED);
+    },
+
+    // 按了向下键
+    keyDown: function() {
+      var index;
+      var $item = this.role('item');
+
+      $item.each(function(i) {
+        if ($(this).hasClass(SELECTED) && i < $item.length - 1) {
+          index = i + 1;
+          $(this).removeClass(SELECTED);
+          return false;
+        }
+      });
+      $item.eq(index).addClass(SELECTED);
+    },
+
+    onKey: function(e) {
+      if (!this.option('search')) {
+        return;
+      }
+      switch (e.keyCode) {
+        case KEY_MAP.BACKSPACE:
+          this.keyBack();
+          break;
+        case KEY_MAP.ENTER:
+          this.keyEnter();
+          break;
+        case KEY_MAP.UP:
+          this.keyUp();
+          break;
+        case KEY_MAP.DOWN:
+          this.keyDown();
+          break;
+        default:
+          this.search();
+          break;
+      }
+
+    },
+
+    // 根据搜索内容显示下拉
+    renderDropdown: function(data) {
+      this.$('.dropdown-content').html(itemsTemplate({
+        items: data,
+        emptyTemplate: this.option('sifterOptions/emptyTemplate')
+      }));
+    },
+
     setup: function() {
       var self = this,
         field = self.option('field'),
         optionLoad;
 
       if (!field) {
-        throw new Error('请设置 field');
+        throw new Error('field is invalid');
       }
 
       field = self.field = $(field).hide();
@@ -126,11 +299,11 @@ define(function(require, exports, module) {
 
       self.data('hasSelected', !!self.option('value') || !!field.val());
 
+      self.option('placeholder', field.attr('placeholder'));
       self.data('label',
         self.option('label') ||
         field.data('label') ||
-        self.option('placeholder') ||
-        field.attr('placeholder'));
+        self.option('placeholder'));
 
       self.once('render', function() {
         self.element.addClass(
@@ -140,10 +313,11 @@ define(function(require, exports, module) {
           'mousedown': function(e) {
             if (!(self.is(e.target) ||
               self.$(e.target).length)) {
-              self.hideDropdown();
+              self.showSelect && self.hideDropdown();
             }
           }
         }, self.document);
+
       });
 
       optionLoad = self.option('load');
@@ -151,11 +325,13 @@ define(function(require, exports, module) {
       // 异步请求
       if (optionLoad) {
         optionLoad.call(self, function(data) {
-          self.setDataSelect(data);
+          self.option('model', data);
+          self.initAttrs();
+          self.setDataSelect();
         });
       } else {
         self.initAttrs();
-        self.setDataSelect(self.option('model'));
+        self.setDataSelect();
       }
     },
 
@@ -163,6 +339,29 @@ define(function(require, exports, module) {
       this.role('item')
         .filter('[data-value="' + value + '"]')
         .trigger('click');
+    },
+
+    setPlaceholder: function() {
+      if (this.activeInput) {
+        return;
+      }
+      var attrs;
+      if (this.showSelect) {
+        attrs = {
+          width: '4px',
+          opacity: 1,
+          position: 'relative',
+          left: 0
+        };
+      } else {
+        attrs = {
+          width: '4px',
+          opacity: 0,
+          position: 'absolute',
+          left: '-10000px'
+        };
+      }
+      this.searchInput.css(attrs);
     },
 
     /**
@@ -178,22 +377,36 @@ define(function(require, exports, module) {
         field = self.field,
         tagName = self.tagName,
         model = self.option('model'),
-        value = self.option('value') || field.attr('value') || field.val();
+        multiple = self.option('multiple'),
+        value = self.option('value') || field.val() || null;
 
       if (tagName === 'select') {
+        //self.option('hasLabel') && (value = field.attr('value'));
+        var curValue = field.attr('value');
+        if (curValue) {
+          value = curValue;
+        } else if (self.option('hasLabel')) {
+          value = null;
+        }
         // option 设置 model 优先级高
         if (model && model.length) {
           self.data('select', completeModel(model, value));
         } else {
-          self.data('select', convertSelect(field[0], value));
+          model = convertSelect(field[0], value);
+          self.data('select', model);
         }
       } else {
         if (!model || !model.length) {
           throw new Error('option model invalid');
         }
-
+        if (self.option('hasOptionAll')) {
+          model.unshift({
+            value: '',
+            text: self.option('defaultText')
+          });
+        }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value));
+        self.data('select', completeModel(model, value, multiple));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -217,17 +430,21 @@ define(function(require, exports, module) {
      * 设置下拉选项数据
      *
      * @method setDataSelect
-     * @param {object} data 下拉选项
      * @private
      */
-    setDataSelect: function(data) {
+    setDataSelect: function() {
       var self = this;
-
+      var data = self.option('model');
       self.data({
         select: data,
+        maxWidth: self.option('maxWidth') + 'px',
+        search: self.option('search'),
         multiple: self.option('multiple')
       });
 
+      if (self.option('search')) {
+        self.sifter = new Sifter(data);
+      }
       self.render();
     },
 
@@ -240,6 +457,25 @@ define(function(require, exports, module) {
       this.initValue();
       Select.superclass.render.apply(this);
       this.setWidth();
+      if (this.option('search')) {
+        this.searchInput = this.role('placeholder');
+        //this.value === null && this.showPlaceholder();
+        this.setPlaceholder();
+        this.bindKeyEvents();
+      }
+    },
+
+    bindKeyEvents: function() {
+      var self = this;
+
+      self.searchInput.off('keydown').on('keydown', function(e) {
+        if (self.value !== null || self.text !== null) {
+          // 禁止输入
+          self.disableKey = true;
+          return false;
+        }
+      });
+
     },
 
     /**
@@ -263,21 +499,40 @@ define(function(require, exports, module) {
         }
       }
 
-      newValue = values.join(self.option('delimiter'));
+      newValue = values.join(self.option('delimiter')) || null;
 
       self.data('hasSelected', hasSelected);
 
       if (typeof self.value === 'undefined') {
-        self.value = self.field.val();
+        // 为空值就转为 null
+        self.value = self.field.val() || null;
       }
 
-      self.field.val(newValue);
+      self.field.val(newValue || '');
 
       if (self.value !== newValue) {
         self.value = newValue;
         self.field.change();
         self.fire('change');
       }
+    },
+
+    /**
+     * 清空值
+     */
+    clearValue: function() {
+      var self = this,
+        data = self.data('select'),
+        i, l;
+
+      for (i = 0, l = data.length; i < l; i++) {
+        data[i].selected = false;
+      }
+      self.data('hasSelected', false);
+      self.value = null;
+      self.text = null;
+      self.field.val('');
+      self.searchInput.val('');
     },
 
     /**
@@ -288,12 +543,14 @@ define(function(require, exports, module) {
      */
     setWidth: function() {
       var self = this,
+        WIDTH_INPUT = self.option('search') ? 6 : 0,
         minWidth = self.option('minWidth'),
         maxWidth = self.option('maxWidth'),
         calWidth;
 
       if (!minWidth) {
-        minWidth = (self.option('multiple') ? 20 : 0) +
+        // 6 是 search input 的最小宽度
+        minWidth = (self.option('multiple') ? 20 : WIDTH_INPUT) +
           getStringWidth(self.role('selected'), self.data('select'));
       }
 
@@ -304,16 +561,20 @@ define(function(require, exports, module) {
           self.role('selected')
             .css('width', maxWidth);
           self.data('width', maxWidth + 'px');
+          self.role('single-text').css('max-width', maxWidth - WIDTH_INPUT);
         } else {
           self.role('selected')
             .css('min-width', minWidth)
             .css('max-width', maxWidth);
+          self.role('single-text')
+            .css('max-width', maxWidth - WIDTH_INPUT);
           self.data('minWidth', minWidth + 'px');
           self.data('maxWidth', maxWidth + 'px');
         }
       } else {
         self.role('selected')
           .css('min-width', minWidth);
+        self.role('single-text').css('max-width', minWidth - WIDTH_INPUT);
         self.data('minWidth', minWidth + 'px');
       }
     },
@@ -331,9 +592,8 @@ define(function(require, exports, module) {
       roleSelect.addClass('focus input-active dropdown-active');
 
       if (!self.option('multiple')) {
-        self.role('selected')
-          .addClass('is-label')
-          .text(self.data('label') || undefined);
+        self.role('selected').addClass('is-label');
+        self.role('single-text').text(self.text || undefined);
       }
 
       self.role('dropdown')
@@ -344,6 +604,15 @@ define(function(require, exports, module) {
           visibility: 'visible'
         })
         .show();
+
+      self.showSelect = true;
+      if (self.option('search')) {
+        self.setPlaceholder();
+        if (!self.value && !self.text) {
+          self.showPlaceholder();
+          self.renderDropdown(self.data('select'));
+        }
+      }
     },
 
     /**
@@ -354,22 +623,29 @@ define(function(require, exports, module) {
      */
     hideDropdown: function() {
       var self = this;
-
       if (self.role('dropdown').is(':hidden')) {
         return;
       }
-
+      self.showSelect = false;
       self.role('select')
         .removeClass('focus input-active dropdown-active');
 
       if (!self.option('multiple')) {
-        self.role('selected')
-          .removeClass('is-label')
-          .text(self.text || undefined);
+        if (self.option('search')) {
+          self.activeInput = false;
+          self.setPlaceholder();
+          self.hidePlaceholder();
+        }
+        self.role('selected').removeClass('is-label');
+        self.role('single-text')
+          .show()
+          .text(self.text || self.option('placeholder'));
       }
 
       self.role('dropdown')
         .hide();
+
+
     },
 
     /**
@@ -399,7 +675,8 @@ define(function(require, exports, module) {
       for (i = 0, l = datas.length; i < l; i++) {
         datas[i].selected = (i === index);
       }
-
+      self.activeInput = false;
+      self.showSelect = false;
       self.render();
     },
 
@@ -433,8 +710,7 @@ define(function(require, exports, module) {
   module.exports = Select;
 
   function convertSelect(select, value) {
-    var i, j, o, option,
-      fields, field,
+    var i, o, option,
       model = [],
       options = select.options,
       l = options.length,
@@ -454,6 +730,7 @@ define(function(require, exports, module) {
 
       o = {
         text: option.text,
+        index: i,
         value: option.value,
         selected: !selectedFound && selected,
         disabled: option.disabled
@@ -466,36 +743,40 @@ define(function(require, exports, module) {
       }
     }
 
-    // 当所有都没有设置 selected，默认设置第一个
-    if (!selectedFound && model.length) {
-      model[0].selected = true;
-    }
-
     return model;
   }
 
   // 补全 model 对象
-  function completeModel(model, value) {
-    var i, l,
-      selected,
-      selectedFound = false;
+  function completeModel(model, value, multiple) {
+    var i, l;
 
     for (i = 0, l = model.length; i < l; i++) {
-
-      if (value !== null) {
-        model[i].selected = (value === model[i].value);
+      var selected;
+      var curValue = model[i].value + '';
+      if (multiple) {
+        selected = value !== null && value.indexOf(curValue) !== -1;
+      } else {
+        selected = value !== null && value === curValue;
       }
 
-      if (model[i].selected) {
-        selectedFound = true;
-      }
+      model[i].index = i;
+      model[i].selected = selected;
     }
-
-    if (!selectedFound && model.length) {
-      model[0].selected = true;
-    }
-
     return model;
+  }
+
+  function getMaxLength(data) {
+    var i, l, m = 0,
+      n, text;
+
+    for (i = 0, l = data.length; i < l; i++) {
+      text = data[i].text;
+      n = text.replace(/[^\x00-\xff]/g, 'xx').length;
+      if (n > m) {
+        m = n;
+      }
+    }
+    return n;
   }
 
   function getStringWidth(sibling, data) {

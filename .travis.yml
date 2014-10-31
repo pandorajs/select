@@ -10,7 +10,7 @@ install:
   - spm install
 
 script:
-  - grunt qunit
+  - grunt test
 
 after_success:
   - grunt coveralls

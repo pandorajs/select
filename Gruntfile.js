@@ -28,26 +28,33 @@ module.exports = function(grunt) {
       }
     },
 
-    qunit: {
-      options: {
-        '--web-security': 'no',
-        coverage: {
-          baseUrl: './',
-          src: ['src/*.js'],
-          instrumentedFiles: 'temp/',
-          lcovReport: 'report/',
-          linesThresholdPct: 60
-        }
-      },
-      all: ['test/*.html']
-    },
-
     coveralls: {
       options: {
         force: true
       },
       all: {
-        src: 'report/*.info'
+        src: 'report/**/*.info'
+      }
+    },
+
+    coverage: {
+      options: {
+        thresholds: {
+          'statements': 60,
+          'branches': 50,
+          'lines': 60,
+          'functions': 60
+        },
+        dir: 'coverage',
+        root: 'test'
+      }
+    },
+
+
+    karma: {
+      unit: {
+        configFile: 'karma.conf.js',
+        autoWatch: true
       }
     },
 
@@ -60,6 +67,32 @@ module.exports = function(grunt) {
           paths: 'src',
           outdir: 'doc'
         }
+      }
+    },
+
+    less: {
+      select: {
+        files: {
+          'src/select.css': 'src/select.less'
+        }
+      }
+    },
+
+    spawn: {
+      docWatch: {
+        command: 'spm',
+        commandArgs: ['doc','watch']
+      },
+      docBuild: {
+        command: 'spm',
+        commandArgs: ['doc','build']
+      }
+    },
+
+    watch: {
+      less: {
+        files: ['src/*.less'],
+        tasks: ['less']
       }
     },
 
@@ -108,6 +141,7 @@ module.exports = function(grunt) {
           dest: '<%= sea %>'
         }]
       }
+
     },
 
     transport: {
@@ -141,6 +175,20 @@ module.exports = function(grunt) {
       }
     },
 
+    'gh-pages': {
+      options: {
+        base: '_site',
+        repo: 'https://github.com/pandorajs/select.git',
+        user: {
+          name: 'lynzz',
+          email: 'lynzz168@gmail.com'
+        }
+
+      },
+      src: ['**/*']
+    },
+
+
     uglify: {
       options: {
         banner: '/*! <%= pkg.name %>-<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
@@ -167,13 +215,13 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask('build', ['clean:dist', 'transport', 'concat', 'clean:build', 'uglify']);
+  grunt.registerTask('build', ['clean:dist','jshint', 'transport', 'concat', 'clean:build', 'uglify']);
 
   grunt.registerTask('demo', ['clean:sea', 'copy:sea']);
 
   grunt.registerTask('doc', ['clean:doc', 'yuidoc', 'clean:pages', 'copy:doc']);
 
-  grunt.registerTask('test', ['jshint', 'qunit']);
+  grunt.registerTask('test', ['karma']);
 
   grunt.registerTask('default', ['test', 'doc', 'build', 'demo']);
 

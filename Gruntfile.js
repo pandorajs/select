@@ -29,8 +29,12 @@ module.exports = function(grunt) {
     },
 
     coveralls: {
-      all: {
-        src: 'report/**/*.info'
+      options: {
+        debug: true,
+        coverage_dir: 'report',
+        dryRun: true,
+        force: true,
+        recursive: true
       }
     },
 

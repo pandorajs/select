@@ -76,7 +76,29 @@ define(function(require, exports, module) {
       expect(select.field.val()).to.be('2');
     });
 
+    it('multiple async select', function () {
+      input.val('13');
+      select = new Select({
+        field: '#test',
+        multiple: true,
+        load: function(callback) {
+          callback([
+            {
+              text: 'text1',
+              value: '1'
+            }, {
+              text: 'text1',
+              value: '2'
+            }, {
+              text: 'text1',
+              value: '13'
+            }
+          ]);
+        }
 
+      });
+      expect(select.role('selected').children().length).to.be(1);
+    });
 
 
     describe('Method', function() {
@@ -232,6 +254,41 @@ define(function(require, exports, module) {
         });
 
         expect(select.role('placeholder').length).to.be(0);
+      });
+
+      it('placeholder', function () {
+        select = new Select({
+          field: '#test',
+          model: [
+            {value:'0', text:'blue template'},
+            {value:'1', text:'red template'},
+            {value:'2', text:'green template'}
+          ]
+        });
+        expect(select.option('placeholder')).to.be('请选择');
+        expect(select.role('single-text').text()).to.be('请选择');
+        expect(select.value).to.be(null);
+        expect(select.field.val()).to.be('');
+      });
+
+      it('placeholder and async load model', function () {
+        select = new Select({
+          field: '#test',
+          load: function(callback) {
+            //setTimeout(function() {
+              callback([
+                {value:'0', text:'blue template'},
+                {value:'1', text:'red template'},
+                {value:'2', text:'green template'}
+              ]);
+            //}, 0);
+          }
+        });
+        expect(select.option('placeholder')).to.be('请选择');
+        expect(select.role('item').length).to.be(3);
+        expect(select.role('single-text').text()).to.be('请选择');
+        expect(select.value).to.not.ok();
+        expect(select.field.val()).to.be('');
       });
 
       it('minWidth, and less than maxWidth', function () {

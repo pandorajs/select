@@ -65,7 +65,7 @@ seajs.use(['select'], function(Select) {
 trigger 为 input, 默认值为 1,如有设置value值，能过js配置的优先级高， 同上必须传入 model 数据
 
 ````html
-<input value="1" id="example3" name="theme">
+<input id="example3" name="theme">
 ````
 
 ````javascript
@@ -95,14 +95,14 @@ trigger 为 input, 如有设置value值，能过js配置的优先级高， 同�
 > **注：多选只支持在js配置mulitple**
 
 ````html
-<input id="example4" name="theme" value="1,2">
+<input id="example4" name="theme" value="">
 ````
 
 ````javascript
 seajs.use(['select'], function(Select) {
     new Select({
         field: '#example4',
-        //value: '2',
+        value: ['1','2'],
         multiple: true,
         maxWidth: 200,
         load: function(callback){
@@ -110,7 +110,8 @@ seajs.use(['select'], function(Select) {
               callback([
                 {value:'0', text:'blue templateaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'},
                 {value:'1', text:'red template'},
-                {value:'2', text:'green template'}
+                {value:'2', text:'green template'},
+                {value:'12', text:'green template12'}
               ]);
             //}, 0);
         }
@@ -122,7 +123,7 @@ seajs.use(['select'], function(Select) {
 
 
 ````html
-<input id="example5" name="theme">
+<input id="example5" value="12" name="theme">
 ````
 
 ````javascript
@@ -130,7 +131,7 @@ seajs.use(['select'], function(Select) {
     new Select({
         field: '#example5',
         //value: '2',
-        search: true,
+        search: false,
         maxWidth: 100,
         hasOptionAll: true,
         load: function(callback){
@@ -138,7 +139,8 @@ seajs.use(['select'], function(Select) {
               callback([
                 {value:'0', text:'blue template,longtemplatetemplatetemplatetemplatetemplatetemplatetemplate'},
                 {value:'1', text:'red template'},
-                {value:'2', text:'green template'}
+                {value:'2', text:'green template'},
+                {value:'12', text:'green template111'}
               ]);
             }, 0);
         }

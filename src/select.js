@@ -390,7 +390,7 @@ define(function(require, exports, module) {
         }
         // option 设置 model 优先级高
         if (model && model.length) {
-          self.data('select', completeModel(model, value));
+          self.data('select', completeModel.call(this, model, value));
         } else {
           model = convertSelect(field[0], value);
           self.data('select', model);
@@ -406,7 +406,7 @@ define(function(require, exports, module) {
           });
         }
         // trigger 如果为其他 DOM，则由用户提供 model
-        self.data('select', completeModel(model, value, multiple));
+        self.data('select', completeModel.call(this, model, value, multiple));
 
         // 如果 name 存在则创建隐藏域
         selectName = self.option('name');
@@ -750,10 +750,16 @@ define(function(require, exports, module) {
   function completeModel(model, value, multiple) {
     var i, l;
 
+    if (multiple && typeof value === 'string') {
+      value = value.split(this.option('delimiter'));
+    }
+
     for (i = 0, l = model.length; i < l; i++) {
       var selected;
       var curValue = model[i].value + '';
       if (multiple) {
+        console.log(value);
+
         selected = value !== null && value.indexOf(curValue) !== -1;
       } else {
         selected = value !== null && value === curValue;

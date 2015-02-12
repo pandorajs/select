@@ -19,16 +19,25 @@ trigger 为 select，并默认选中 option2
     <option value="1">na na</option>
     <option value="2">绿色</option>
 </select>
+<button id="btn-off" type="button">禁用</button>
+<button id="btn-on" type="button">启用</button>
 ````
 
 ````javascript
-seajs.use(['select'], function(Select) {
-    new Select({
+seajs.use(['$','select'], function($, Select) {
+    var select = new Select({
         //search: true,
         minWidth: 50,
         hasLabel: true,
         field: '#example1',
         //value: '1'
+    });
+    
+    $('#btn-off').click(function(){
+        select.disable();
+    });
+    $('#btn-on').click(function(){
+        select.enable();
     });
 });
 ````

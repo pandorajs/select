@@ -36,6 +36,7 @@ define(function(require, exports, module) {
     DOWN: 40
   };
   var SELECTED = 'selected';
+  var UE_SELECT_DISABLED = 'ue-select-disabled';
 
   /**
    * 模拟 select 组件
@@ -114,6 +115,9 @@ define(function(require, exports, module) {
       delegates: {
         'click [data-role=select]': function(e) {
           e.stopPropagation();
+          if (this.option('disabled')) {
+            return false;
+          }
           if (this.showSelect) {
             this.hideDropdown();
           } else {
@@ -703,6 +707,16 @@ define(function(require, exports, module) {
       self.render();
 
       self.showDropdown();
+    },
+
+    disable: function() {
+      this.option('disabled', true);
+      this.element.addClass(UE_SELECT_DISABLED);
+    },
+
+    enable: function() {
+      this.option('disabled', false);
+      this.element.removeClass(UE_SELECT_DISABLED);
     }
 
   });

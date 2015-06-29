@@ -771,8 +771,6 @@ function completeModel(model, value, multiple) {
     var selected;
     var curValue = model[i].value + '';
     if (multiple) {
-      console.log(value);
-
       selected = value !== null && value.indexOf(curValue) !== -1;
     } else {
       selected = value !== null && value === curValue;

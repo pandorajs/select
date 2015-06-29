@@ -61,7 +61,6 @@
     },
     "tests": "tests/*-spec.js",
     "scripts": {
-      "prebuild": "gulp prebuild",
       "postbuild": "gulp postbuild"
     }
   }

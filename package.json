@@ -67,7 +67,6 @@
     "buildArgs": "--ignore jquery",
     "tests": "tests/*-spec.js",
     "scripts": {
-      "postbuild": "gulp postbuild"
     }
   }
 }

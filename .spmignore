@@ -7,3 +7,6 @@ dist
 .travis.yml
 LICENSE-MIT
 node_modules
+_site
+.grunt
+spm_modules

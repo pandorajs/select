@@ -773,7 +773,7 @@ function completeModel(model, value, multiple) {
     if (multiple) {
       selected = value !== null && value.indexOf(curValue) !== -1;
     } else {
-      selected = value !== null && value === curValue;
+      selected = value !== null ? value === curValue : model[i].selected;
     }
 
     model[i].index = i;

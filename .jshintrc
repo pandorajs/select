@@ -13,7 +13,9 @@
   "freeze": false,
   "globals": {
     "define": true,
-    "seajs": true
+    "seajs": true,
+    "require": true,
+    "module": true
   },
   "immed": true,
   "indent": false,
@@ -27,7 +29,7 @@
   "plusplus": false,
   "quotmark": "single",
   "smarttabs": true,
-  "strict": false,
+  "strict": true,
   "sub": true,
   "undef": true,
   "unused": false,

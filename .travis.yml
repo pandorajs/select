@@ -1,14 +1,16 @@
 language: node_js
 
 node_js:
-  - 0.10
+  - "0.10"
 
 install:
-  - npm install -g grunt-cli karma-cli
-  - npm install
+  - npm install spm coveralls
+
+before_script:
+  - node_modules/spm/bin/spm-install
 
 script:
-  - karma start --single-run
+  - node_modules/spm/bin/spm-test
 
 after_success:
-  - grunt coveralls
+  - node_modules/spm/bin/spm-test --coveralls | node_modules/.bin/coveralls

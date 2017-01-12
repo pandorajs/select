@@ -99,13 +99,14 @@ var Select = Widget.extend({
     minWidth: null,
     maxWidth: 200,
 
-    template: require('./select.handlebars'),
     templateOptions: {
       partials: {
-        singleItem: require('./select-single-item.handlebars'),
-        multiItem: require('./select-multi-item.handlebars')
+        'select-single-item': require('./select-single-item.handlebars'),
+        'select-multi-item': require('./select-multi-item.handlebars')
       }
     },
+
+    template: require('./select.handlebars'),
 
     insert: function() {
       this.element.insertAfter(this.option('field')).show();
@@ -324,7 +325,6 @@ var Select = Widget.extend({
     });
 
     optionLoad = self.option('load');
-
     // 异步请求
     if (optionLoad) {
       optionLoad.call(self, function(data) {
@@ -458,7 +458,8 @@ var Select = Widget.extend({
    */
   render: function() {
     this.initValue();
-    Select.superclass.render.apply(this);
+    debugger
+    Select.superclass.render.call(this);
     this.setWidth();
     if (this.option('search')) {
       this.searchInput = this.role('placeholder');
@@ -826,4 +827,3 @@ function getStringWidth(sibling, data) {
 
   return width;
 }
-

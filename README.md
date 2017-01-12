@@ -3,7 +3,7 @@
 ---
 [![Build Status](https://secure.travis-ci.org/pandorajs/select.png)](https://travis-ci.org/pandorajs/select) [![Coverage Status](https://coveralls.io/repos/pandorajs/select/badge.png)](https://coveralls.io/r/pandorajs/select)
 
-模拟 select 的组件. 目前只兼容 chrome,适用于后台开发场景
+模拟 select 的组件. 目前只兼容现代浏览器
 
 ---
 
@@ -104,7 +104,7 @@ model 的格式为
 
 ### hasLebel *boolean*
 
-是否要显示 label，即 select 框说明，只适用于原生 select 
+是否要显示 label，即 select 框说明，只适用于原生 select
 
 ### search *boolean*
 
@@ -132,4 +132,3 @@ model 的格式为
 //TODO
 
 ## 问题讨论
-

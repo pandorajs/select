@@ -22,10 +22,10 @@
 <div class="dropdown" data-role="dropdown" style="display:none">
   <div class="dropdown-content">
     {{#if multiple}}
-      {{> multiItem}}
+      {{> select-multi-item}}
     {{else}}
       {{#each select}}
-        {{> singleItem}}
+        {{> select-single-item}}
       {{/each}}
     {{/if}}
   </div>
